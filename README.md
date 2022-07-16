@@ -8,7 +8,7 @@ At the moment, this project only checks if consent was correctly implemented for
 
 ## Motivation / Background
 
-The ultimate aim is to help app developers configure SDKs in more privacy-preserving ways, and automatically asks users for consent when required.
+The ultimate aim is to help app developers configure SDKs in more privacy-preserving ways, and automatically ask users for consent when required.
 
 The background of this that our research at Oxford found that less than 4% of Android apps implement any form of consent: <https://www.usenix.org/conference/soups2021/presentation/kollnig>
 
