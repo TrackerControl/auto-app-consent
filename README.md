@@ -4,6 +4,8 @@ This repository shall help app developers implement consent in apps correctly.
 
 At the moment, this project only checks if consent was correctly implemented for Google Firebase Analytics. Correctly here means that the consent actually works and that no data is sent to Google Analytics without consent.
 
+The ultimate aim is to help app developers configure SDKs in more privacy-preserving ways, and automatically asks users for consent when required.
+
 *Note that the use of Google Analytics in the EU is [likely illegal even with user consent](https://noyb.eu/en/austrian-dsb-eu-us-data-transfers-google-analytics-illegal), because data is sent to the US and can be used for unlawful surveillance of EU citizens.*
 
 ## Installation
