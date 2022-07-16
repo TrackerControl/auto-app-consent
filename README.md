@@ -4,7 +4,7 @@ This repository shall help app developers implement consent in apps correctly.
 
 At the moment, this project only checks if consent was correctly implemented for Google Firebase Analytics.
 
-*Note that the use of Google Firebae in the use is [likely illegal even with user consent](https://noyb.eu/en/austrian-dsb-eu-us-data-transfers-google-analytics-illegal), because data is sent to the US.*
+*Note that the use of Google Firebase in the EU is [likely illegal even with user consent](https://noyb.eu/en/austrian-dsb-eu-us-data-transfers-google-analytics-illegal), because data is sent to the US and can be used for unlawful surveillance of EU citizens.*
 
 ## Installation
 
