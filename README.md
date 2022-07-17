@@ -30,7 +30,7 @@ allprojects {
 2. Add the library:
 ```gradle
 dependencies {
-        implementation 'com.github.kasnder:gdpr-consent-android:0.1'
+        implementation 'com.github.kasnder:gdpr-consent-android:0.2'
 }
 ```
 3. Initialise the library by calling `ConsentManager consentManager = ConsentManager.getInstance(this)` in your app's `onCreate()` method.
