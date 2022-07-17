@@ -77,23 +77,20 @@ public class ConsentManager {
         SharedPreferences prefs = getPreferences();
         prefs.edit().putBoolean("has_consent", consent).apply();
 
-        if (consent) {
-            Class firebaseAnalyticsClass = findFirebaseAnalytics();
+        Class firebaseAnalyticsClass = findFirebaseAnalytics();
+        if (firebaseAnalyticsClass != null) {
+            try {
+                // Call FirebaseAnalytics.getInstance(context)
+                Object[] arglist = {context};
+                Method getInstance = firebaseAnalyticsClass.getMethod("getInstance", Context.class);
+                Object firebaseAnalytics = getInstance.invoke(null, arglist);
 
-            if (firebaseAnalyticsClass != null) {
-                try {
-                    // Call FirebaseAnalytics.getInstance(context)
-                    Object[] arglist = {context};
-                    Method getInstance = firebaseAnalyticsClass.getMethod("getInstance", Context.class);
-                    Object firebaseAnalytics = getInstance.invoke(null, arglist);
-
-                    // Call FirebaseAnalytics.setAnalyticsCollectionEnabled(true)
-                    arglist[0] = true;
-                    Method setAnalyticsCollectionEnabled = firebaseAnalyticsClass.getMethod("setAnalyticsCollectionEnabled", boolean.class);
-                    setAnalyticsCollectionEnabled.invoke(firebaseAnalytics, arglist);
-                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                    e.printStackTrace();
-                }
+                // Call FirebaseAnalytics.setAnalyticsCollectionEnabled(true)
+                arglist[0] = consent;
+                Method setAnalyticsCollectionEnabled = firebaseAnalyticsClass.getMethod("setAnalyticsCollectionEnabled", boolean.class);
+                setAnalyticsCollectionEnabled.invoke(firebaseAnalytics, arglist);
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
             }
         }
     }
