@@ -39,7 +39,7 @@ dependencies {
 You can check the example project in `app/` to see how the library is used.
 
 The project also disables the sharing of analytics data with Google Ads, which is enabled by default.
-If you need this functionality, you can add the following to your `<application>` tag in your 'AndroidManifest.xml' file:
+If you need this functionality, you can add the following to your `<application>` tag in your `AndroidManifest.xml file:
 
 ```xml
 <meta-data android:name="google_analytics_default_allow_ad_personalization_signals" android:value="false" />
