@@ -22,9 +22,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <meta-data android:name="google_analytics_default_allow_ad_personalization_signals" android:value="false" />
-
     </application>
 
 </manifest>
