@@ -6,6 +6,10 @@ At the moment, this project automatically implements a consent flow if your app 
 
 *Note that the use of Google Analytics in the EU is [likely illegal even with user consent](https://noyb.eu/en/austrian-dsb-eu-us-data-transfers-google-analytics-illegal), because data is sent to the US and can be used for unlawful surveillance of EU citizens.*
 
+<img src="assets/screen.png"
+      alt="Screenshot of the automatic consent flow."
+      width="50%">
+
 ## Motivation / Background
 
 The ultimate aim is to help app developers configure SDKs in more privacy-preserving ways, and automatically ask users for consent when required.
