@@ -19,7 +19,7 @@ The background of this that our research at Oxford found that less than 4% of An
 ## Installation
 
 1. Add the `library` to your own project as a dependency (you can use the example project `app` as inspiration).
-2. Initialise the library by calling `ConsentManager consentManager = ConsentManager.getInstance(this)` at the top of your app's `onCreate()` method.
+2. Initialise the library by calling `ConsentManager consentManager = ConsentManager.getInstance(this)` in your app's `onCreate()` method.
 
 You can check the example project in `app/` to see how the library is used.
 
