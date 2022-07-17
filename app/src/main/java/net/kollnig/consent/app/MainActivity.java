@@ -1,8 +1,8 @@
 package net.kollnig.consent.app;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 
@@ -16,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         ConsentManager consentManager = ConsentManager.getInstance(this);
-        consentManager.saveConsent(false); // Make sure to save consent
+        consentManager.saveConsent(true); // Make sure to save consent
 
         // Initialise Firebase
         FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
