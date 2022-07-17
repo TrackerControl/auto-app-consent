@@ -23,7 +23,7 @@ The background of this that our research at Oxford found that less than 4% of An
 
 You can check the example project in `app/` to see how the library is used.
 
-The project also disable the sharing of Analytics data with Google Ads, which is enabled by default.
+The project also disables the sharing of analytics data with Google Ads, which is enabled by default.
 If you need this functionality, you can add the following to your `<application>` tag in your 'AndroidManifest.xml' file:
 
 ```xml
