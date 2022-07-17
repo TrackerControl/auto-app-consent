@@ -20,7 +20,7 @@ The background of this that our research at Oxford found that less than 4% of An
 
 1. Add the `library` to your own project as a dependency (you can use the example project `app` as inspiration).
 2. Initialise the library by calling `ConsentManager consentManager = ConsentManager.getInstance(this)` in your app's `onCreate()` method.
-3. If you want to, you can change the title (or message) in the consent flows by changing the `consent_title` (or `consent_msg`) string.
+3. If you want to, you can change the title (or message) in the consent flow by changing the `consent_title` (or `consent_msg`) string.
 
 You can check the example project in `app/` to see how the library is used.
 
