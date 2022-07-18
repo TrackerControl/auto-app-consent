@@ -42,5 +42,5 @@ The project also disables the sharing of analytics data with Google Ads, which i
 If you need this functionality, you can add the following to your `<application>` tag in your `AndroidManifest.xml` file:
 
 ```xml
-<meta-data android:name="google_analytics_default_allow_ad_personalization_signals" android:value="false" />
+<meta-data android:name="google_analytics_default_allow_ad_personalization_signals" tools:node="remove"/>
 ```

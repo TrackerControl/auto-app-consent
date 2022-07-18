@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="consent_title">Allow analytics data collection?</string>
-    <string name="consent_msg">This app would like to use Google Firebase Analytics to understand your interactions with the app.\n\nThis involves using cookies and similar technologies and sharing your personal data with Google.</string>
+    <string name="firebase_analytics_consent_title">Allow analytics data collection?</string>
+    <string name="firebase_analytics_consent_msg">This app would like to use Google Firebase Analytics to understand your interactions with the app.\n\nThis involves using cookies and similar technologies and sharing your personal data with Google.</string>
+    <string name="facebook_sdk_consent_title">Allow analytics data collection?</string>
+    <string name="facebook_sdk_consent_msg">This app would like to use the Facebok SDK to understand your interactions with the app.\n\nThis involves using cookies and similar technologies and sharing your personal data with Facebook/Meta.</string>
     <string name="yes">Accept</string>
     <string name="no">Refuse</string>
 </resources>

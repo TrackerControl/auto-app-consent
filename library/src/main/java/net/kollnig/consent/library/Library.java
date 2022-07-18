@@ -2,6 +2,9 @@ package net.kollnig.consent.library;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 public abstract class Library {
     private final Context context;
 
@@ -18,13 +21,29 @@ public abstract class Library {
         return context;
     }
 
-    abstract public String getId();
+    abstract public @NonNull
+    String getId();
 
-    abstract void initialise() throws LibraryInteractionException;
+    void initialise() throws LibraryInteractionException {
+
+    };
 
     abstract public void saveConsent(Boolean consent) throws LibraryInteractionException;
 
-    abstract public boolean isPresent();
+    public boolean isPresent() {
+        return findBaseClass() != null;
+    }
+
+    abstract String getBaseClass();
+
+    @Nullable
+    Class findBaseClass() {
+        try {
+            return Class.forName(getBaseClass());
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
+    }
 
    /*String methodName = "getInstance";
     String methodSig = "(Landroid/content/Context;)Lcom/google/firebase/analytics/FirebaseAnalytics;";

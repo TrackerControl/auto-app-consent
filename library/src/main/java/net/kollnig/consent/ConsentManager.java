@@ -11,6 +11,7 @@ import android.widget.Button;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
+import net.kollnig.consent.library.FacebookSdkLibrary;
 import net.kollnig.consent.library.FirebaseAnalyticsLibrary;
 import net.kollnig.consent.library.Library;
 import net.kollnig.consent.library.LibraryInteractionException;
@@ -40,6 +41,7 @@ public class ConsentManager {
         libraries = new LinkedList<>();
         try {
             libraries.add(new FirebaseAnalyticsLibrary(context));
+            libraries.add(new FacebookSdkLibrary(context));
         } catch (LibraryInteractionException e) {
             e.printStackTrace();
         }
@@ -54,7 +56,7 @@ public class ConsentManager {
         return mConsentManager;
     }
 
-    public void saveConsent(boolean consent) {
+    public void saveConsent(String libraryId, boolean consent) {
         SharedPreferences prefs = getPreferences();
 
         Set<String> set = prefs.getStringSet("consents", null);
@@ -63,6 +65,9 @@ public class ConsentManager {
             prefsSet.addAll(set);
 
         for (Library library : libraries) {
+            if (!library.getId().equals(libraryId))
+                continue;
+
             try {
                 library.saveConsent(consent);
 
@@ -98,18 +103,22 @@ public class ConsentManager {
         // TODO: Merge multiple libraries into one consent screen
         for (Library library: libraries) {
             if (library.isPresent()) {
-                Log.d(TAG, "has " + library.getId() + " library, needs consent");
+                String libraryId = library.getId();
+                Log.d(TAG, "has " + libraryId + " library, needs consent");
 
-                Boolean consent = hasConsent(library.getId());
+                int titleId = libraryId.equals("firebase_analytics") ? R.string.firebase_analytics_consent_title : R.string.facebook_sdk_consent_title;
+                int messageId = libraryId.equals("firebase_analytics") ? R.string.firebase_analytics_consent_msg : R.string.facebook_sdk_consent_msg;
+
+                Boolean consent = hasConsent(libraryId);
                 if (consent == null && showConsent) {
                     final AlertDialog alertDialog = new AlertDialog.Builder(context)
-                            .setTitle(R.string.consent_title)
-                            .setMessage(R.string.consent_msg)
+                            .setTitle(titleId)
+                            .setMessage(messageId)
                             .setPositiveButton(R.string.yes, (dialog, which) -> {
-                                saveConsent(true);
+                                saveConsent(libraryId, true);
                             })
                             .setNegativeButton(R.string.no, (dialog, which) -> {
-                                saveConsent(false);
+                                saveConsent(libraryId, false);
                             })
                             .setNeutralButton("Privacy Policy", null)
                             .setCancelable(false)
