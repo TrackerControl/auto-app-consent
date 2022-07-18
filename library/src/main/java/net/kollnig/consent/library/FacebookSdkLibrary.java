@@ -38,8 +38,8 @@ public class FacebookSdkLibrary extends Library {
                 setAutoLogAppEventsEnabled.invoke(null, arglist);
 
                 // Call FacebookSdk.setAdvertiserIDCollectionEnabled(consent);
-                Method setAdvertiserIDCollectionEnabled = baseClass.getMethod("setAdvertiserIDCollectionEnabled", boolean.class);
-                setAdvertiserIDCollectionEnabled.invoke(null, arglist);
+                //Method setAdvertiserIDCollectionEnabled = baseClass.getMethod("setAdvertiserIDCollectionEnabled", boolean.class);
+                //setAdvertiserIDCollectionEnabled.invoke(null, arglist);
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 throw new LibraryInteractionException("Could not save settings to Firebase Analytics.");
             }

@@ -1,10 +1,12 @@
+
+
 # App Consent
 
 This repository shall help app developers implement consent in apps correctly.
 
-At the moment, this project automatically implements a consent flow if your app uses Google Firebase Analytics.
+At the moment, this project automatically implements a consent flow if your app uses Google Firebase Analytics or the Facebook SDK.
 
-*Note that the use of Google Analytics in the EU is [likely illegal even with user consent](https://noyb.eu/en/austrian-dsb-eu-us-data-transfers-google-analytics-illegal), because data is sent to the US and can be used for unlawful surveillance of EU citizens.*
+*Note that the use of Google and Facebook services in the EU is [likely illegal even with user consent](https://noyb.eu/en/austrian-dsb-eu-us-data-transfers-google-analytics-illegal), because data is sent to the US and can be used for unlawful surveillance of EU citizens.*
 
 <img src="assets/screen.png"
       alt="Screenshot of the automatic consent flow."
@@ -30,10 +32,10 @@ allprojects {
 2. Add the library:
 ```gradle
 dependencies {
-        implementation 'com.github.kasnder:gdpr-consent-android:0.2'
+        implementation 'com.github.kasnder:gdpr-consent-android:0.3'
 }
 ```
-3. Initialise the library by calling `ConsentManager consentManager = ConsentManager.getInstance(this)` in your app's `onCreate()` method.
+3. Initialise the library by calling `ConsentManager consentManager = ConsentManager.getInstance(this, true, Uri.parse("[URL to your Privacy Policy]"))` in your app's `onCreate()` method.
 4. If you want to, you can change the title (or message) in the consent flow by changing the `consent_title` (or `consent_msg`) string.
 
 You can check the example project in `app/` to see how the library is used.
@@ -43,4 +45,11 @@ If you need this functionality, you can add the following to your `<application>
 
 ```xml
 <meta-data android:name="google_analytics_default_allow_ad_personalization_signals" tools:node="remove"/>
+<meta-data android:name="google_analytics_adid_collection_enabled" tools:node="remove" />
+```
+
+Similarly, the tool, by default, disable the collection of the Android Advertise ID in the Facebbok SDK, unless this is explicitly disabled as follows.
+
+```xml
+<meta-data android:name="com.facebook.sdk.AdvertiserIDCollectionEnabled" tools:node="remove"/>
 ```
