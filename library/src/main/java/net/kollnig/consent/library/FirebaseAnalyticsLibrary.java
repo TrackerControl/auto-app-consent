@@ -20,7 +20,7 @@ public class FirebaseAnalyticsLibrary extends Library {
     }
 
     @Override
-    public void saveConsent(Boolean consent) throws LibraryInteractionException {
+    public void saveConsent(boolean consent) throws LibraryInteractionException {
         Class baseClass = findBaseClass();
         if (baseClass != null) {
             try {

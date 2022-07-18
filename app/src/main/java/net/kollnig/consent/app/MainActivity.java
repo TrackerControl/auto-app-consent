@@ -6,6 +6,7 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.applovin.sdk.AppLovinPrivacySettings;
 import com.facebook.FacebookSdk;
 import com.google.firebase.analytics.FirebaseAnalytics;
 

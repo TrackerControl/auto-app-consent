@@ -13,6 +13,9 @@
         <meta-data android:name="com.facebook.sdk.AutoInitEnabled" android:value="false"/>
         <meta-data android:name="com.facebook.sdk.AutoLogAppEventsEnabled" android:value="false"/>
         <meta-data android:name="com.facebook.sdk.AdvertiserIDCollectionEnabled" android:value="false"/>
+
+        <!-- Google Ads -->
+        <meta-data android:name="com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT" android:value="true"/>
     </application>
 
 </manifest>

@@ -34,7 +34,7 @@ public abstract class Library {
             saveConsent(false);
     };
 
-    abstract public void saveConsent(Boolean consent) throws LibraryInteractionException;
+    abstract public void saveConsent(boolean consent) throws LibraryInteractionException;
 
     public boolean isPresent() {
         return findBaseClass() != null;
