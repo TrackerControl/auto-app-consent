@@ -5,6 +5,8 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import net.kollnig.consent.ConsentManager;
+
 public abstract class Library {
     private final Context context;
 
@@ -25,7 +27,11 @@ public abstract class Library {
     String getId();
 
     void initialise() throws LibraryInteractionException {
+        Boolean consent = ConsentManager.hasConsent(context, getId());
 
+        if (consent == null
+                || consent == false)
+            saveConsent(false);
     };
 
     abstract public void saveConsent(Boolean consent) throws LibraryInteractionException;

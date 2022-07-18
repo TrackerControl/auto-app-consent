@@ -57,7 +57,7 @@ public class ConsentManager {
     }
 
     public void saveConsent(String libraryId, boolean consent) {
-        SharedPreferences prefs = getPreferences();
+        SharedPreferences prefs = getPreferences(context);
 
         Set<String> set = prefs.getStringSet("consents", null);
         Set<String> prefsSet = new HashSet<>();
@@ -82,13 +82,13 @@ public class ConsentManager {
         prefs.edit().putStringSet("consents", prefsSet).apply();
     }
 
-    private SharedPreferences getPreferences() {
+    private static SharedPreferences getPreferences(Context context) {
         return context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
     }
 
     public @Nullable
-    Boolean hasConsent(String libraryId) {
-        SharedPreferences prefs = getPreferences();
+    static Boolean hasConsent(Context context, String libraryId) {
+        SharedPreferences prefs = getPreferences(context);
 
         Set<String> set = prefs.getStringSet("consents", new HashSet<>());
         if (set.contains(libraryId + ":" + true))
@@ -105,7 +105,7 @@ public class ConsentManager {
                 String libraryId = library.getId();
                 Log.d(TAG, "has " + libraryId + " library, needs consent");
 
-                if (hasConsent(libraryId) == null
+                if (hasConsent(context, libraryId) == null
                         && showConsent) {
 
                     final AlertDialog alertDialog = new AlertDialog.Builder(context)
