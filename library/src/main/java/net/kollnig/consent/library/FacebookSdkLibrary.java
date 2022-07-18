@@ -4,6 +4,8 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import net.kollnig.consent.R;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -47,5 +49,10 @@ public class FacebookSdkLibrary extends Library {
     @Override
     String getBaseClass() {
         return "com.facebook.FacebookSdk";
+    }
+
+    @Override
+    public int getConsentMessage() {
+        return R.string.facebook_sdk_consent_msg;
     }
 }

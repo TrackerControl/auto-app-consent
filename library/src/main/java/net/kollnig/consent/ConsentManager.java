@@ -100,20 +100,17 @@ public class ConsentManager {
     }
 
     private void initialise() {
-        // TODO: Merge multiple libraries into one consent screen
         for (Library library: libraries) {
             if (library.isPresent()) {
                 String libraryId = library.getId();
                 Log.d(TAG, "has " + libraryId + " library, needs consent");
 
-                int titleId = libraryId.equals("firebase_analytics") ? R.string.firebase_analytics_consent_title : R.string.facebook_sdk_consent_title;
-                int messageId = libraryId.equals("firebase_analytics") ? R.string.firebase_analytics_consent_msg : R.string.facebook_sdk_consent_msg;
+                if (hasConsent(libraryId) == null
+                        && showConsent) {
 
-                Boolean consent = hasConsent(libraryId);
-                if (consent == null && showConsent) {
                     final AlertDialog alertDialog = new AlertDialog.Builder(context)
-                            .setTitle(titleId)
-                            .setMessage(messageId)
+                            .setTitle(R.string.consent_title)
+                            .setMessage(library.getConsentMessage())
                             .setPositiveButton(R.string.yes, (dialog, which) -> {
                                 saveConsent(libraryId, true);
                             })
@@ -123,6 +120,8 @@ public class ConsentManager {
                             .setNeutralButton("Privacy Policy", null)
                             .setCancelable(false)
                             .create();
+
+                    // this is needed to avoid the dialog from closing on clicking the policy button
                     alertDialog.setOnShowListener(dialogInterface -> {
                         Button neutralButton = alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
                         neutralButton.setOnClickListener(view -> {
@@ -130,6 +129,7 @@ public class ConsentManager {
                             context.startActivity(browserIntent);
                         });
                     });
+
                     alertDialog.show();
                 }
             }

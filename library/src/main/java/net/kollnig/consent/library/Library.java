@@ -45,6 +45,8 @@ public abstract class Library {
         }
     }
 
+    abstract public int getConsentMessage();
+
    /*String methodName = "getInstance";
     String methodSig = "(Landroid/content/Context;)Lcom/google/firebase/analytics/FirebaseAnalytics;";
 
