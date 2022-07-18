@@ -1,5 +1,3 @@
-
-
 # App Consent
 
 This repository shall help app developers implement consent in apps correctly. This helps
@@ -28,6 +26,8 @@ At the moment, this project automatically implements a consent flow if your app 
       width="50%">
 
 ## Installation
+
+**NOTE THAT THE USE OF THIS TOOL COMES AT YOUR OWN RISK. THIS TOOL CANNOT REPLANCE AND DOES NOT PROVIDE *EXPERT LEGAL ADVICE*.**
 
 1. Add the JitPack repo:
 ```gradle
