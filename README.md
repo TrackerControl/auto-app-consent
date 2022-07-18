@@ -41,7 +41,13 @@ dependencies {
         implementation 'com.github.kasnder:gdpr-consent-android:0.3'
 }
 ```
-3. Initialise the library by calling `ConsentManager consentManager = ConsentManager.getInstance(this, true, Uri.parse("[URL to your Privacy Policy]"))` in your app's `onCreate()` method.
+3. Initialise the library by calling
+```java
+ConsentManager consentManager =
+      new ConsentManager.Builder(this)
+            .setPrivacyPolicy(Uri.parse("http://www.example.org/privacy"))
+            .build();
+```
 4. If you want to, you can change the title (or message) in the consent flow by changing the `consent_title` (or `consent_msg`) string.
 
 You can check the example project in `app/` to see how the library is used.
