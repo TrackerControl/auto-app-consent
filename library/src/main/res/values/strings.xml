@@ -9,7 +9,7 @@
 
     <string name="firebase_analytics">Google Firebase Analytics</string>
     <string name="facebook_sdk">Facebok SDK</string>
-    <string name="applovin">Applovin</string>
+    <string name="applovin">AppLovin</string>
     <string name="aaid">Google Advertising Identifier</string>
 
     <string name="yes">Accept</string>
