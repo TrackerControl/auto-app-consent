@@ -34,12 +34,12 @@ public abstract class Library {
 
         if (consent == null
                 || consent == false)
-            saveConsent(false);
+            passConsentToLibrary(false);
 
         return this;
     }
 
-    abstract public void saveConsent(boolean consent) throws LibraryInteractionException;
+    abstract public void passConsentToLibrary(boolean consent) throws LibraryInteractionException;
 
     public boolean isPresent() {
         return findBaseClass() != null;
@@ -57,4 +57,6 @@ public abstract class Library {
     }
 
     abstract public int getConsentMessage();
+
+    abstract public int getName();
 }

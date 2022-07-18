@@ -15,28 +15,38 @@ public class FacebookSdkLibrary extends Library {
     }
 
     @Override
-    public void saveConsent(boolean consent) throws LibraryInteractionException {
+    public void passConsentToLibrary(boolean consent) throws LibraryInteractionException {
         Class baseClass = findBaseClass();
         if (baseClass != null) {
             try {
-                // Call FacebookSdk.setAutoInitEnabled(consent);
                 Object[] arglist = {consent};
+
+                // Call FacebookSdk.setAutoInitEnabled(consent);
                 Method setAutoInitEnabled = baseClass.getMethod("setAutoInitEnabled", boolean.class);
                 setAutoInitEnabled.invoke(null, arglist);
 
                 // Call FacebookSdk.fullyInitialize();
-                Method fullyInitialize = baseClass.getMethod("fullyInitialize");
-                fullyInitialize.invoke(null);
+                if (!consent) {
+                    Method fullyInitialize = baseClass.getMethod("fullyInitialize");
+                    fullyInitialize.invoke(null);
+                }
 
                 // Call FacebookSdk.setAutoLogAppEventsEnabled(consent);
-                Method setAutoLogAppEventsEnabled = baseClass.getMethod("setAutoLogAppEventsEnabled", boolean.class);
-                setAutoLogAppEventsEnabled.invoke(null, arglist);
+                try {
+                    Method setAutoLogAppEventsEnabled = baseClass.getMethod("setAutoLogAppEventsEnabled", boolean.class);
+                    setAutoLogAppEventsEnabled.invoke(null, arglist);
+                } catch (InvocationTargetException e) {
+                    if (!e.getTargetException().getClass().getName().equals("com.facebook.FacebookSdkNotInitializedException"))
+                        throw e;
+                }
 
                 // Call FacebookSdk.setAdvertiserIDCollectionEnabled(consent);
                 //Method setAdvertiserIDCollectionEnabled = baseClass.getMethod("setAdvertiserIDCollectionEnabled", boolean.class);
                 //setAdvertiserIDCollectionEnabled.invoke(null, arglist);
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                throw new LibraryInteractionException("Could not save settings to Firebase Analytics.");
+            } catch (NoSuchMethodException
+                    | IllegalAccessException
+                    | InvocationTargetException e) {
+                throw new LibraryInteractionException("Could not save settings to Facebook SDK.");
             }
         }
     }
@@ -49,5 +59,9 @@ public class FacebookSdkLibrary extends Library {
     @Override
     public int getConsentMessage() {
         return R.string.facebook_sdk_consent_msg;
+    }
+    @Override
+    public int getName() {
+        return R.string.facebook_sdk;
     }
 }

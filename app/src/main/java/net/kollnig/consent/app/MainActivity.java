@@ -29,8 +29,10 @@ public class MainActivity extends AppCompatActivity {
                 new ConsentManager.Builder(this)
                         .setShowConsent(true)
                         .setPrivacyPolicy(Uri.parse("http://www.example.org/privacy"))
-                        .setExcludedLibraries(new String[]{"firebase_analytics"})
+                        //.setExcludedLibraries(new String[]{"firebase_analytics"})
                         .build();
+
+        //consentManager.clearConsent();
 
         Log.d(TAG, "Detected and managed libraries: "
                 + String.join(", ", consentManager.getManagedLibraries()));

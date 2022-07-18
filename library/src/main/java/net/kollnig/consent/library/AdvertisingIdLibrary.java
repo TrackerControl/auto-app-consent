@@ -62,7 +62,7 @@ public class AdvertisingIdLibrary extends Library {
     }
 
     @Override
-    public void saveConsent(boolean consent) {
+    public void passConsentToLibrary(boolean consent) {
         // do nothing
     }
 
@@ -74,5 +74,10 @@ public class AdvertisingIdLibrary extends Library {
     @Override
     public int getConsentMessage() {
         return R.string.aaid_consent_msg;
+    }
+
+    @Override
+    public int getName() {
+        return R.string.aaid;
     }
 }

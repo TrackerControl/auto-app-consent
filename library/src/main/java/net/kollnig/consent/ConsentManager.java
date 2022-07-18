@@ -55,7 +55,8 @@ public class ConsentManager {
         libraries = new LinkedList<>();
         try {
             for (Library library : availableLibraries) {
-                if (Arrays.asList(excludedLibraries).contains(library.getId()))
+                if (!library.isPresent() ||
+                        Arrays.asList(excludedLibraries).contains(library.getId()))
                     continue;
 
                 library.initialise(context);
@@ -113,6 +114,10 @@ public class ConsentManager {
         return libraryIds;
     }
 
+    public void clearConsent() {
+        getPreferences(context).edit().clear().apply();
+    }
+
     public void saveConsent(String libraryId, boolean consent) {
         SharedPreferences prefs = getPreferences(context);
 
@@ -126,7 +131,7 @@ public class ConsentManager {
                 continue;
 
             try {
-                library.saveConsent(consent);
+                library.passConsentToLibrary(consent);
 
                 prefsSet.remove(library.getId() + ":" + true);
                 prefsSet.remove(library.getId() + ":" + false);
@@ -140,40 +145,67 @@ public class ConsentManager {
     }
 
     private void initialise() {
+        askConsent();
+    }
+
+    private void askConsent() {
+        List<String> ids = new LinkedList<>();
+        List<String> names = new LinkedList<>();
+
         for (Library library : libraries) {
             if (library.isPresent()) {
                 String libraryId = library.getId();
-                Log.d(TAG, "has " + libraryId + " library, needs consent");
-
-                if (hasConsent(context, libraryId) == null
-                        && showConsent) {
-
-                    final AlertDialog alertDialog = new AlertDialog.Builder(context)
-                            .setTitle(R.string.consent_title)
-                            .setMessage(library.getConsentMessage())
-                            .setPositiveButton(R.string.yes, (dialog, which) -> {
-                                saveConsent(libraryId, true);
-                            })
-                            .setNegativeButton(R.string.no, (dialog, which) -> {
-                                saveConsent(libraryId, false);
-                            })
-                            .setNeutralButton("Privacy Policy", null)
-                            .setCancelable(false)
-                            .create();
-
-                    // this is needed to avoid the dialog from closing on clicking the policy button
-                    alertDialog.setOnShowListener(dialogInterface -> {
-                        Button neutralButton = alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
-                        neutralButton.setOnClickListener(view -> {
-                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, privacyPolicy);
-                            context.startActivity(browserIntent);
-                        });
-                    });
-
-                    alertDialog.show();
+                if (hasConsent(context, libraryId) == null && showConsent) {
+                    ids.add(libraryId);
+                    names.add(context.getString(library.getName()));
                 }
             }
         }
+
+        if (ids.size() == 0)
+            return;
+
+        List<String> selectedItems = new LinkedList<>();
+        final AlertDialog alertDialog = new AlertDialog.Builder(context)
+                .setTitle(R.string.consent_title)
+                .setPositiveButton(R.string.accept_all, (dialog, which) -> {
+                    for (Library library: libraries) {
+                        String libraryId = library.getId();
+
+                        if (!ids.contains(libraryId))
+                            continue;
+
+                        saveConsent(libraryId, true);
+                    }
+                })
+                .setNegativeButton(R.string.accept_selected, (dialog, which) -> {
+                    for (Library library: libraries) {
+                        String libraryId = library.getId();
+
+                        if (!ids.contains(libraryId))
+                            continue;
+
+                        saveConsent(libraryId, selectedItems.contains(libraryId));
+                    }
+                })
+                .setMultiChoiceItems(names.toArray(new String[0]), null, (dialog, i, isChecked) -> {
+                    if (isChecked) selectedItems.add(ids.get(i));
+                    else selectedItems.remove(ids.get(i));
+                })
+                .setNeutralButton("Privacy Policy", null)
+                .setCancelable(false)
+                .create();
+
+        // this is needed to avoid the dialog from closing on clicking the policy button
+        alertDialog.setOnShowListener(dialogInterface -> {
+            Button neutralButton = alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+            neutralButton.setOnClickListener(view -> {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, privacyPolicy);
+                context.startActivity(browserIntent);
+            });
+        });
+
+        alertDialog.show();
     }
 
     public static class Builder {

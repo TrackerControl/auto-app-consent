@@ -17,7 +17,7 @@ public class FirebaseAnalyticsLibrary extends Library {
     }
 
     @Override
-    public void saveConsent(boolean consent) throws LibraryInteractionException {
+    public void passConsentToLibrary(boolean consent) throws LibraryInteractionException {
         Class baseClass = findBaseClass();
         if (baseClass != null) {
             try {
@@ -44,5 +44,10 @@ public class FirebaseAnalyticsLibrary extends Library {
     @Override
     public int getConsentMessage() {
         return R.string.firebase_analytics_consent_msg;
+    }
+
+    @Override
+    public int getName() {
+        return R.string.firebase_analytics;
     }
 }

@@ -17,7 +17,7 @@ public class AppLovinLibrary extends Library {
     }
 
     @Override
-    public void saveConsent(boolean consent) throws LibraryInteractionException {
+    public void passConsentToLibrary(boolean consent) throws LibraryInteractionException {
         Class baseClass = findBaseClass();
         if (baseClass != null) {
             try {
@@ -32,7 +32,7 @@ public class AppLovinLibrary extends Library {
                 setHasUserConsent.invoke(null, arglist);
 
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                throw new LibraryInteractionException("Could not save settings to Firebase Analytics.");
+                throw new LibraryInteractionException("Could not save settings to Applovin.");
             }
         }
     }
@@ -45,5 +45,10 @@ public class AppLovinLibrary extends Library {
     @Override
     public int getConsentMessage() {
         return R.string.applovin_consent_msg;
+    }
+
+    @Override
+    public int getName() {
+        return R.string.applovin;
     }
 }
