@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Log.d(TAG, "Has consent: " + consentManager.hasConsent(FIREBASE_ANALYTICS_LIBRARY));
 
-        // AppsFlyerLib.getInstance();
+        //AppsFlyerLib.getInstance();
 
         //AdvertisingIdClient.getAdvertisingIdInfo();
 
