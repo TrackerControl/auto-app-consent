@@ -18,6 +18,12 @@ The ultimate aim is to help app developers configure SDKs in more privacy-preser
 
 The background of this that our research at Oxford found that less than 4% of Android apps implement any form of consent: <https://www.usenix.org/conference/soups2021/presentation/kollnig>
 
+Common problems in practice:
+
+- Lack of consent to data collection
+- Sharing of data without consent
+- Sharing more data than necessary
+
 ## Installation
 
 1. Add the JitPack repo:
