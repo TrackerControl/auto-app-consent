@@ -11,6 +11,7 @@ import android.widget.Button;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
+import net.kollnig.consent.library.AppLovinLibrary;
 import net.kollnig.consent.library.FacebookSdkLibrary;
 import net.kollnig.consent.library.FirebaseAnalyticsLibrary;
 import net.kollnig.consent.library.Library;
@@ -42,6 +43,7 @@ public class ConsentManager {
         try {
             libraries.add(new FirebaseAnalyticsLibrary(context));
             libraries.add(new FacebookSdkLibrary(context));
+            libraries.add(new AppLovinLibrary(context));
         } catch (LibraryInteractionException e) {
             e.printStackTrace();
         }

@@ -2,12 +2,9 @@ package net.kollnig.consent.app;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.applovin.sdk.AppLovinPrivacySettings;
-import com.facebook.FacebookSdk;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.kollnig.consent.ConsentManager;
@@ -33,5 +30,7 @@ public class MainActivity extends AppCompatActivity {
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
 
         //Log.d(TAG, "Has consent: " + consentManager.hasConsent(FIREBASE_ANALYTICS_LIBRARY));
+
+        // AppsFlyerLib.getInstance();
     }
 }

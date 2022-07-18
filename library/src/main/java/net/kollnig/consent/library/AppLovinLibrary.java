@@ -4,6 +4,8 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import net.kollnig.consent.R;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -46,6 +48,6 @@ public class AppLovinLibrary extends Library {
 
     @Override
     public int getConsentMessage() {
-        return 0;
+        return R.string.applovin_consent_msg;
     }
 }
