@@ -1,5 +1,7 @@
 package net.kollnig.consent.app;
 
+import static net.kollnig.consent.library.FirebaseAnalyticsLibrary.FIREBASE_ANALYTICS_LIBRARY;
+
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,6 +32,6 @@ public class MainActivity extends AppCompatActivity {
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "image");
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
 
-        Log.d(TAG, "Has consent: " + consentManager.hasConsent());
+        Log.d(TAG, "Has consent: " + consentManager.hasConsent(FIREBASE_ANALYTICS_LIBRARY));
     }
 }
