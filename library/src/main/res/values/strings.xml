@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="consent_title">Allow?</string>
+    <string name="consent_title">Allow data collection?</string>
     <string name="firebase_analytics_consent_msg">This app would like to use Google Firebase Analytics to understand your interactions with the app.\n\nThis involves using cookies and similar technologies and sharing your personal data with Google.</string>
     <string name="facebook_sdk_consent_msg">This app would like to use the Facebok SDK to understand your interactions with the app.\n\nThis involves using cookies and similar technologies and sharing your personal data with Facebook/Meta.</string>
     <string name="applovin_consent_msg">This app would like to use Applovin to serve you ads.\n\nThis involves using cookies and similar technologies and sharing your personal data with third-party companies.</string>
-    <string name="aaid_consent_msg">This app would like to access the Google Advertising Identifier\n\nThis involves using cookies and similar technologies.</string>
+    <string name="aaid_consent_msg">This app would like to access the Google Advertising Identifier.\n\nThis involves accessing an identifier that can track your activity across apps.</string>
     <string name="yes">Accept</string>
     <string name="no">Refuse</string>
 </resources>

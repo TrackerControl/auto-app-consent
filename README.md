@@ -2,7 +2,10 @@
 
 # App Consent
 
-This repository shall help app developers implement consent in apps correctly. Specifically, it targets the following compliance problems:
+This repository shall help app developers implement consent in apps correctly. This helps
+compliance with the GDPR, CCPA and other legal regimes.
+
+Specifically, it targets the following compliance problems:
 
 - Failure to to implement any consent flows
 - Sharing of data with third-party companies without consent (violating Articles 7 and (35)1 GDPR)
@@ -38,7 +41,7 @@ allprojects {
 2. Add the library:
 ```gradle
 dependencies {
-        implementation 'com.github.kasnder:gdpr-consent-android:0.3'
+        implementation 'com.github.kasnder:app-consent-android:0.3'
 }
 ```
 3. Initialise the library by calling
