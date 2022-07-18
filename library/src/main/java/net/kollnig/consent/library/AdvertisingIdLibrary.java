@@ -14,12 +14,8 @@ import java.lang.reflect.Method;
 import lab.galaxy.yahfa.HookMain;
 
 public class AdvertisingIdLibrary extends Library {
-    static final String TAG = "HOOKED";
     public static final String LIBRARY_IDENTIFIER = "google_ads_identifier";
-
-    public AdvertisingIdLibrary(Context context) throws LibraryInteractionException {
-        super(context);
-    }
+    static final String TAG = "HOOKED";
 
     public static Object replacementMethod(@NonNull Context context) throws IOException {
         Log.d(TAG, "successfully hooked");
@@ -36,8 +32,8 @@ public class AdvertisingIdLibrary extends Library {
     }
 
     @Override
-    void initialise() throws LibraryInteractionException {
-        super.initialise();
+    public Library initialise(Context context) throws LibraryInteractionException {
+        super.initialise(context);
 
         try {
             Class advertisingIdClass = Class.forName("com.google.android.gms.ads.identifier.AdvertisingIdClient");
@@ -55,6 +51,8 @@ public class AdvertisingIdLibrary extends Library {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+
+        return this;
     }
 
     @NonNull

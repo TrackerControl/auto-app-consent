@@ -10,12 +10,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class FirebaseAnalyticsLibrary extends Library {
-    public FirebaseAnalyticsLibrary(Context context) throws LibraryInteractionException {
-        super(context);
-    }
-
     @Override
-    public @NonNull String getId() {
+    public @NonNull
+    String getId() {
         return "firebase_analytics";
     }
 

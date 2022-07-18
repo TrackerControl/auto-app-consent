@@ -3,6 +3,7 @@ package net.kollnig.consent.app;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,7 +25,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ConsentManager consentManager = ConsentManager.getInstance(this, true, Uri.parse("http://www.example.org/privacy"));
+        ConsentManager consentManager =
+                new ConsentManager.Builder(this)
+                        .setShowConsent(true)
+                        .setPrivacyPolicy(Uri.parse("http://www.example.org/privacy"))
+                        .setExcludedLibraries(new String[]{"firebase_analytics"})
+                        .build();
+
+        Log.d(TAG, "Detected and managed libraries: "
+                + String.join(", ", consentManager.getManagedLibraries()));
 
         // Initialise Firebase
         FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);

@@ -8,15 +8,11 @@ import androidx.annotation.Nullable;
 import net.kollnig.consent.ConsentManager;
 
 public abstract class Library {
-    private final Context context;
+    private Context context;
 
-    public Library(Context context) throws LibraryInteractionException {
-        this.context = context;
-
+    public Library() {
         if (getId().contains(":"))
             throw new RuntimeException("id cannot contain ':'");
-
-        initialise();
     }
 
     Context getContext() {
@@ -31,13 +27,17 @@ public abstract class Library {
         return ConsentManager.hasConsent(context, getId());
     }
 
-    void initialise() throws LibraryInteractionException {
+    public Library initialise(Context context) throws LibraryInteractionException {
+        this.context = context;
+
         Boolean consent = hasConsent();
 
         if (consent == null
                 || consent == false)
             saveConsent(false);
-    };
+
+        return this;
+    }
 
     abstract public void saveConsent(boolean consent) throws LibraryInteractionException;
 

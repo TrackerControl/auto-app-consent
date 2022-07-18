@@ -10,10 +10,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class AppLovinLibrary extends Library {
-    public AppLovinLibrary(Context context) throws LibraryInteractionException {
-        super(context);
-    }
-
     @NonNull
     @Override
     public String getId() {

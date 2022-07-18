@@ -1,7 +1,5 @@
 package net.kollnig.consent.library;
 
-import android.content.Context;
-
 import androidx.annotation.NonNull;
 
 import net.kollnig.consent.R;
@@ -10,12 +8,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class FacebookSdkLibrary extends Library {
-    public FacebookSdkLibrary(Context context) throws LibraryInteractionException {
-        super(context);
-    }
-
     @Override
-    public @NonNull String getId() {
+    public @NonNull
+    String getId() {
         return "facebook_sdk";
     }
 

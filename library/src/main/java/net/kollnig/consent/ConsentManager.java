@@ -8,7 +8,6 @@ import android.net.Uri;
 import android.util.Log;
 import android.widget.Button;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
@@ -19,59 +18,99 @@ import net.kollnig.consent.library.FirebaseAnalyticsLibrary;
 import net.kollnig.consent.library.Library;
 import net.kollnig.consent.library.LibraryInteractionException;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import lab.galaxy.yahfa.HookMain;
-
 public class ConsentManager {
-    static final String TAG = ConsentManager.class.getSimpleName();
-
     public static final String PREFERENCES_NAME = "net.kollnig.consent";
+    static final String TAG = ConsentManager.class.getSimpleName();
     @SuppressLint("StaticFieldLeak")
     private static ConsentManager mConsentManager = null;
     private final Uri privacyPolicy;
     private final boolean showConsent;
-
     private final List<Library> libraries;
-
     private final Context context;
+    private final String[] excludedLibraries;
 
-    private ConsentManager(Context context, boolean showConsent, Uri privacyPolicy) {
+    Library[] availableLibraries = {
+            new FirebaseAnalyticsLibrary(),
+            new FacebookSdkLibrary(),
+            new AppLovinLibrary(),
+            new AdvertisingIdLibrary()
+    };
+
+    private ConsentManager(Context context,
+                           boolean showConsent,
+                           Uri privacyPolicy,
+                           String[] excludedLibraries) {
+
         this.context = context;
         this.showConsent = showConsent;
         this.privacyPolicy = privacyPolicy;
+        this.excludedLibraries = excludedLibraries;
 
         libraries = new LinkedList<>();
         try {
-            libraries.add(new FirebaseAnalyticsLibrary(context));
-            libraries.add(new FacebookSdkLibrary(context));
-            libraries.add(new AppLovinLibrary(context));
-            libraries.add(new AdvertisingIdLibrary(context));
+            for (Library library : availableLibraries) {
+                if (Arrays.asList(excludedLibraries).contains(library.getId()))
+                    continue;
+
+                library.initialise(context);
+
+                libraries.add(library);
+            }
         } catch (LibraryInteractionException e) {
             e.printStackTrace();
         }
     }
 
-    public static ConsentManager getInstance(Context context, Boolean showConsent, Uri privacyPolicy) {
+    private static ConsentManager getInstance(Context context,
+                                              Boolean showConsent,
+                                              Uri privacyPolicy,
+                                              String[] excludeLibraries) {
         if (mConsentManager == null) {
-            mConsentManager = new ConsentManager(context, showConsent, privacyPolicy);
+            mConsentManager = new ConsentManager(context, showConsent, privacyPolicy, excludeLibraries);
             mConsentManager.initialise();
         }
 
         return mConsentManager;
     }
 
-    public static ConsentManager getInstance(Context context) {
-        if (mConsentManager == null) {
+    public static ConsentManager getInstance() {
+        if (mConsentManager == null)
             throw new RuntimeException("ConsentManager has not yet been correctly initialised.");
-        }
 
         return mConsentManager;
+    }
+
+    private static SharedPreferences getPreferences(Context context) {
+        return context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
+    }
+
+    public @Nullable
+    static Boolean hasConsent(Context context, String libraryId) {
+        SharedPreferences prefs = getPreferences(context);
+
+        Set<String> set = prefs.getStringSet("consents", new HashSet<>());
+        if (set.contains(libraryId + ":" + true))
+            return true;
+        else if (set.contains(libraryId + ":" + false))
+            return false;
+        else
+            return null;
+    }
+
+    public String[] getManagedLibraries() {
+        String[] libraryIds = new String[libraries.size()];
+
+        for (int i = 0; i < libraries.size(); i++) {
+            libraryIds[i] = libraries.get(i).getId();
+        }
+
+        return libraryIds;
     }
 
     public void saveConsent(String libraryId, boolean consent) {
@@ -100,25 +139,8 @@ public class ConsentManager {
         prefs.edit().putStringSet("consents", prefsSet).apply();
     }
 
-    private static SharedPreferences getPreferences(Context context) {
-        return context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
-    }
-
-    public @Nullable
-    static Boolean hasConsent(Context context, String libraryId) {
-        SharedPreferences prefs = getPreferences(context);
-
-        Set<String> set = prefs.getStringSet("consents", new HashSet<>());
-        if (set.contains(libraryId + ":" + true))
-            return true;
-        else if (set.contains(libraryId + ":" + false))
-            return false;
-        else
-            return null;
-    }
-
     private void initialise() {
-        for (Library library: libraries) {
+        for (Library library : libraries) {
             if (library.isPresent()) {
                 String libraryId = library.getId();
                 Log.d(TAG, "has " + libraryId + " library, needs consent");
@@ -151,6 +173,42 @@ public class ConsentManager {
                     alertDialog.show();
                 }
             }
+        }
+    }
+
+    public static class Builder {
+        Context context;
+        boolean showConsent = true;
+        Uri privacyPolicy = null;
+        String[] excludedLibraries = {};
+
+        public Builder(Context context) {
+            this.context = context;
+        }
+
+        public Builder setShowConsent(boolean showConsent) {
+            this.showConsent = showConsent;
+
+            return this;
+        }
+
+        public Builder setPrivacyPolicy(Uri privacyPolicy) {
+            this.privacyPolicy = privacyPolicy;
+
+            return this;
+        }
+
+        public Builder setExcludedLibraries(String[] excludedLibraries) {
+            this.excludedLibraries = excludedLibraries;
+
+            return this;
+        }
+
+        public ConsentManager build() {
+            if (privacyPolicy == null)
+                throw new RuntimeException("No privacy policy provided.");
+
+            return ConsentManager.getInstance(context, showConsent, privacyPolicy, excludedLibraries);
         }
     }
 }
