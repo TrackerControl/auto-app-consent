@@ -2,27 +2,27 @@
 
 # App Consent
 
-This repository shall help app developers implement consent in apps correctly.
+This repository shall help app developers implement consent in apps correctly. Specifically, it targets the following compliance problems:
 
-At the moment, this project automatically implements a consent flow if your app uses Google Firebase Analytics or the Facebook SDK.
+- Failure to to implement any consent flows
+- Sharing of data with third-party companies without consent (violating Articles 7 and (35)1 GDPR)
+- Non technically-necessary accessing or storing of data on smartphone (violating Article 5(3) ePrivacy Directive)
+- Sharing more data than necessary (violating Article 4(1) GDPR)
+
+The motivation for this project that our research at Oxford found that less than 4% of Android apps implement any form of consent: <https://www.usenix.org/conference/soups2021/presentation/kollnig>
+
+At the moment, this project automatically implements a consent flow if your app uses one of the following SDKs:
+
+- Google Firebase Analytics
+- Facebook SDK
+- AppLovin
+- Google Play Services Advertising Identifier Library
 
 *Note that the use of Google and Facebook services in the EU is [likely illegal even with user consent](https://noyb.eu/en/austrian-dsb-eu-us-data-transfers-google-analytics-illegal), because data is sent to the US and can be used for unlawful surveillance of EU citizens.*
 
 <img src="assets/screen.png"
       alt="Screenshot of the automatic consent flow."
       width="50%">
-
-## Motivation / Background
-
-The ultimate aim is to help app developers configure SDKs in more privacy-preserving ways, and automatically ask users for consent when required.
-
-The background of this that our research at Oxford found that less than 4% of Android apps implement any form of consent: <https://www.usenix.org/conference/soups2021/presentation/kollnig>
-
-Common problems in practice:
-
-- Lack of consent to data collection
-- Sharing of data without consent
-- Sharing more data than necessary
 
 ## Installation
 

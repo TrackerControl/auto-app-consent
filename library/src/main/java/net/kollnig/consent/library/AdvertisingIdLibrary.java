@@ -1,0 +1,80 @@
+package net.kollnig.consent.library;
+
+import android.content.Context;
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+
+import net.kollnig.consent.ConsentManager;
+import net.kollnig.consent.R;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
+
+import lab.galaxy.yahfa.HookMain;
+
+public class AdvertisingIdLibrary extends Library {
+    static final String TAG = "HOOKED";
+    public static final String LIBRARY_IDENTIFIER = "google_ads_identifier";
+
+    public AdvertisingIdLibrary(Context context) throws LibraryInteractionException {
+        super(context);
+    }
+
+    public static Object replacementMethod(@NonNull Context context) throws IOException {
+        Log.d(TAG, "successfully hooked");
+
+        if (!Boolean.TRUE.equals(ConsentManager.hasConsent(context, LIBRARY_IDENTIFIER)))
+            throw new IOException("Blocked attempt to access Advertising Identifier without consent.");
+
+        return originalMethod(context);
+    }
+
+    // this method will be replaced by hook
+    public static Object originalMethod(@NonNull Context context) {
+        throw new RuntimeException("Could not overwrite original Firebase method");
+    }
+
+    @Override
+    void initialise() throws LibraryInteractionException {
+        super.initialise();
+
+        try {
+            Class advertisingIdClass = Class.forName("com.google.android.gms.ads.identifier.AdvertisingIdClient");
+            String methodName = "getAdvertisingIdInfo";
+            String methodSig = "(Landroid/content/Context;)Lcom/google/android/gms/ads/identifier/AdvertisingIdClient$Info;";
+
+            try {
+                Method methodOrig = (Method) HookMain.findMethodNative(advertisingIdClass, methodName, methodSig);
+                Method methodHook = AdvertisingIdLibrary.class.getMethod("replacementMethod", Context.class);
+                Method methodBackup = AdvertisingIdLibrary.class.getMethod("originalMethod", Context.class);
+                HookMain.backupAndHook(methodOrig, methodHook, methodBackup);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException("Could not overwrite method");
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @NonNull
+    @Override
+    public String getId() {
+        return LIBRARY_IDENTIFIER;
+    }
+
+    @Override
+    public void saveConsent(boolean consent) {
+        // do nothing
+    }
+
+    @Override
+    String getBaseClass() {
+        return "com.google.android.gms.ads.identifier.AdvertisingIdClient";
+    }
+
+    @Override
+    public int getConsentMessage() {
+        return R.string.aaid_consent_msg;
+    }
+}

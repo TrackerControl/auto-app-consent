@@ -8,23 +8,30 @@ import android.net.Uri;
 import android.util.Log;
 import android.widget.Button;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
+import net.kollnig.consent.library.AdvertisingIdLibrary;
 import net.kollnig.consent.library.AppLovinLibrary;
 import net.kollnig.consent.library.FacebookSdkLibrary;
 import net.kollnig.consent.library.FirebaseAnalyticsLibrary;
 import net.kollnig.consent.library.Library;
 import net.kollnig.consent.library.LibraryInteractionException;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import lab.galaxy.yahfa.HookMain;
+
 public class ConsentManager {
+    static final String TAG = ConsentManager.class.getSimpleName();
+
     public static final String PREFERENCES_NAME = "net.kollnig.consent";
-    static final String TAG = "HOOKED";
     @SuppressLint("StaticFieldLeak")
     private static ConsentManager mConsentManager = null;
     private final Uri privacyPolicy;
@@ -44,6 +51,7 @@ public class ConsentManager {
             libraries.add(new FirebaseAnalyticsLibrary(context));
             libraries.add(new FacebookSdkLibrary(context));
             libraries.add(new AppLovinLibrary(context));
+            libraries.add(new AdvertisingIdLibrary(context));
         } catch (LibraryInteractionException e) {
             e.printStackTrace();
         }
@@ -53,6 +61,14 @@ public class ConsentManager {
         if (mConsentManager == null) {
             mConsentManager = new ConsentManager(context, showConsent, privacyPolicy);
             mConsentManager.initialise();
+        }
+
+        return mConsentManager;
+    }
+
+    public static ConsentManager getInstance(Context context) {
+        if (mConsentManager == null) {
+            throw new RuntimeException("ConsentManager has not yet been correctly initialised.");
         }
 
         return mConsentManager;

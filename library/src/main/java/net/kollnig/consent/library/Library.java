@@ -26,8 +26,13 @@ public abstract class Library {
     abstract public @NonNull
     String getId();
 
+    @Nullable
+    Boolean hasConsent() {
+        return ConsentManager.hasConsent(context, getId());
+    }
+
     void initialise() throws LibraryInteractionException {
-        Boolean consent = ConsentManager.hasConsent(context, getId());
+        Boolean consent = hasConsent();
 
         if (consent == null
                 || consent == false)
@@ -52,47 +57,4 @@ public abstract class Library {
     }
 
     abstract public int getConsentMessage();
-
-   /*String methodName = "getInstance";
-    String methodSig = "(Landroid/content/Context;)Lcom/google/firebase/analytics/FirebaseAnalytics;";
-
-    try {
-        Method methodOrig = (Method) HookMain.findMethodNative(firebaseAnalyticsClass, methodName, methodSig);
-        Method methodHook = ConsentManager.class.getMethod("hookMe", Context.class);
-        Method methodBackup = ConsentManager.class.getMethod("hookMeBackup", Context.class);
-        HookMain.backupAndHook(methodOrig, methodHook, methodBackup);
-    } catch (NoSuchMethodException e) {
-        throw new RuntimeException("Could not overwrite original Firebase method");
-    }*/
-
-    // in this method, we can run whatever checks we would like to run before calling Firebase
-    /*public static Object hookMe(@NonNull Context context) {
-        Log.d(TAG, "successfully hooked");
-
-        if (mConsentManager.hasConsent()) {
-            // should contain FirebaseAnalytics object
-            Object firebaseAnalytics = hookMeBackup(context);
-
-            if (firebaseAnalytics == null)
-                return null;
-
-            // call firebaseAnalytics.setUserProperty("allow_personalized_ads", "true");
-            try {
-                Object[] arglist = {"allow_personalized_ads", "true"};
-                Method setUserProperty = firebaseAnalytics.getClass().getMethod("setUserProperty", String.class, String.class);
-                setUserProperty.invoke(firebaseAnalytics, arglist);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                e.printStackTrace();
-            }
-
-            return firebaseAnalytics;
-        } else {
-            throw new RuntimeException("Accessed Google Firebase without consent!");
-        }
-    }
-
-    // this method will be replaced by hook
-    public static Object hookMeBackup(@NonNull Context context) {
-        throw new RuntimeException("Could not overwrite original Firebase method");
-    }*/
 }
