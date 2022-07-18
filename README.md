@@ -60,11 +60,4 @@ If you need this functionality, you can add the following to your `<application>
 
 ```xml
 <meta-data android:name="google_analytics_default_allow_ad_personalization_signals" tools:node="remove"/>
-<meta-data android:name="google_analytics_adid_collection_enabled" tools:node="remove" />
-```
-
-Similarly, the tool, by default, disables the collection of the Android Advertise ID in the Facebbok SDK, unless this behaviour is explicitly disabled as follows.
-
-```xml
-<meta-data android:name="com.facebook.sdk.AdvertiserIDCollectionEnabled" tools:node="remove"/>
 ```
