@@ -41,6 +41,8 @@ dependencies {
 
     implementation 'com.google.firebase:firebase-analytics:21.1.0'
 
+    implementation 'com.google.android.gms:play-services-ads:21.1.0'
+
     implementation 'com.facebook.android:facebook-android-sdk:latest.release'
 
     //implementation 'com.google.android.gms:play-services-ads:21.1.0'

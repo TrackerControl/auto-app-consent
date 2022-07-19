@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.util.Log;
 import android.widget.Button;
 
 import androidx.annotation.Nullable;
@@ -15,6 +14,7 @@ import net.kollnig.consent.library.AdvertisingIdLibrary;
 import net.kollnig.consent.library.AppLovinLibrary;
 import net.kollnig.consent.library.FacebookSdkLibrary;
 import net.kollnig.consent.library.FirebaseAnalyticsLibrary;
+import net.kollnig.consent.library.GoogleAdsLibrary;
 import net.kollnig.consent.library.Library;
 import net.kollnig.consent.library.LibraryInteractionException;
 
@@ -39,7 +39,8 @@ public class ConsentManager {
             new FirebaseAnalyticsLibrary(),
             new FacebookSdkLibrary(),
             new AppLovinLibrary(),
-            new AdvertisingIdLibrary()
+            new AdvertisingIdLibrary(),
+            new GoogleAdsLibrary()
     };
 
     private ConsentManager(Context context,

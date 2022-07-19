@@ -18,7 +18,7 @@ public class AdvertisingIdLibrary extends Library {
     static final String TAG = "HOOKED";
 
     public static Object replacementMethod(@NonNull Context context) throws IOException {
-        Log.d(TAG, "successfully hooked");
+        Log.d(TAG, "successfully hooked AAID");
 
         if (!Boolean.TRUE.equals(ConsentManager.hasConsent(context, LIBRARY_IDENTIFIER)))
             throw new IOException("Blocked attempt to access Advertising Identifier without consent.");
@@ -36,7 +36,7 @@ public class AdvertisingIdLibrary extends Library {
         super.initialise(context);
 
         try {
-            Class advertisingIdClass = Class.forName("com.google.android.gms.ads.identifier.AdvertisingIdClient");
+            Class advertisingIdClass = Class.forName(getBaseClass());
             String methodName = "getAdvertisingIdInfo";
             String methodSig = "(Landroid/content/Context;)Lcom/google/android/gms/ads/identifier/AdvertisingIdClient$Info;";
 
