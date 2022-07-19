@@ -3,13 +3,13 @@
     <string name="consent_title">Allow data collection, and reading and storing data on your phone?</string>
 
     <string name="firebase_analytics_consent_msg">This app would like to use Google Firebase Analytics to understand your interactions with the app.\n\nThis involves using cookies and similar technologies and sharing your personal data with Google.</string>
-    <string name="facebook_sdk_consent_msg">This app would like to use the Facebok SDK to understand your interactions with the app.\n\nThis involves using cookies and similar technologies and sharing your personal data with Facebook/Meta.</string>
+    <string name="facebook_sdk_consent_msg">This app would like to use the Facebook SDK to understand your interactions with the app.\n\nThis involves using cookies and similar technologies and sharing your personal data with Facebook/Meta.</string>
     <string name="applovin_consent_msg">This app would like to use Applovin to show you ads.\n\nThis involves using cookies and similar technologies and sharing your personal data with third-party companies.</string>
     <string name="aaid_consent_msg">This app would like to access the Google Advertising Identifier.\n\nThis involves accessing an identifier that can track your activity across apps.</string>
     <string name="google_ads_consent_msg">This app would like to use Google Ads to show you ads.\n\nThis involves using cookies and similar technologies and sharing your personal data with third-party companies.</string>
 
     <string name="firebase_analytics">Google Firebase Analytics (to understand your interactions with the app; sends data to Google)</string>
-    <string name="facebook_sdk">Facebok SDK (to understand your interactions with the app; sends data to Facebook/Meta)</string>
+    <string name="facebook_sdk">Facebook SDK (to understand your interactions with the app; sends data to Facebook/Meta)</string>
     <string name="applovin">AppLovin (to show you ads; sends data to third-party companies)</string>
     <string name="aaid">Google Advertising Identifier (an identifier that can track your activity across apps)</string>
     <string name="google_ads">Google Ads (to show you ads; sends data to third-party companies)</string>
