@@ -15,6 +15,7 @@ The motivation for this project that our research at Oxford found that less than
 At the moment, this project automatically implements a consent flow if your app uses one of the following SDKs:
 
 - Google Firebase Analytics
+- Google Ads
 - Facebook SDK
 - AppLovin
 - Google Play Services Advertising Identifier Library
