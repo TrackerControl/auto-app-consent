@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
                         .build();
 
         //consentManager.clearConsent();
+        //consentManager.askConsent();
 
         Log.d(TAG, "Detected and managed libraries: "
                 + String.join(", ", consentManager.getManagedLibraries()));

@@ -31,7 +31,7 @@ public class ConsentManager {
     private static ConsentManager mConsentManager = null;
     private final Uri privacyPolicy;
     private final boolean showConsent;
-    private final List<Library> libraries;
+    private List<Library> libraries;
     private final Context context;
     private final String[] excludedLibraries;
 
@@ -52,21 +52,6 @@ public class ConsentManager {
         this.showConsent = showConsent;
         this.privacyPolicy = privacyPolicy;
         this.excludedLibraries = excludedLibraries;
-
-        libraries = new LinkedList<>();
-        try {
-            for (Library library : availableLibraries) {
-                if (!library.isPresent() ||
-                        Arrays.asList(excludedLibraries).contains(library.getId()))
-                    continue;
-
-                library.initialise(context);
-
-                libraries.add(library);
-            }
-        } catch (LibraryInteractionException e) {
-            e.printStackTrace();
-        }
     }
 
     private static ConsentManager getInstance(Context context,
@@ -75,7 +60,23 @@ public class ConsentManager {
                                               String[] excludeLibraries) {
         if (mConsentManager == null) {
             mConsentManager = new ConsentManager(context, showConsent, privacyPolicy, excludeLibraries);
-            mConsentManager.initialise();
+
+            mConsentManager.libraries = new LinkedList<>();
+            try {
+                for (Library library : mConsentManager.availableLibraries) {
+                    if (!library.isPresent() ||
+                            Arrays.asList(mConsentManager.excludedLibraries).contains(library.getId()))
+                        continue;
+
+                    library.initialise(context);
+
+                    mConsentManager.libraries.add(library);
+                }
+            } catch (LibraryInteractionException e) {
+                e.printStackTrace();
+            }
+
+            mConsentManager.askConsent();
         }
 
         return mConsentManager;
@@ -93,7 +94,7 @@ public class ConsentManager {
     }
 
     public @Nullable
-    static Boolean hasConsent(Context context, String libraryId) {
+    Boolean hasConsent(String libraryId) {
         SharedPreferences prefs = getPreferences(context);
 
         Set<String> set = prefs.getStringSet("consents", new HashSet<>());
@@ -145,18 +146,14 @@ public class ConsentManager {
         prefs.edit().putStringSet("consents", prefsSet).apply();
     }
 
-    private void initialise() {
-        askConsent();
-    }
-
-    private void askConsent() {
+    public void askConsent() {
         List<String> ids = new LinkedList<>();
         List<String> names = new LinkedList<>();
 
         for (Library library : libraries) {
             if (library.isPresent()) {
                 String libraryId = library.getId();
-                if (hasConsent(context, libraryId) == null && showConsent) {
+                if (hasConsent(libraryId) == null && showConsent) {
                     ids.add(libraryId);
                     names.add(context.getString(library.getName()));
                 }

@@ -24,7 +24,7 @@ public abstract class Library {
 
     @Nullable
     Boolean hasConsent() {
-        return ConsentManager.hasConsent(context, getId());
+        return ConsentManager.getInstance().hasConsent(getId());
     }
 
     public Library initialise(Context context) throws LibraryInteractionException {

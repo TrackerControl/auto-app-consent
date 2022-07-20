@@ -20,7 +20,7 @@ public class AdvertisingIdLibrary extends Library {
     public static Object replacementMethod(@NonNull Context context) throws IOException {
         Log.d(TAG, "successfully hooked AAID");
 
-        if (!Boolean.TRUE.equals(ConsentManager.hasConsent(context, LIBRARY_IDENTIFIER)))
+        if (!Boolean.TRUE.equals(ConsentManager.getInstance().hasConsent(LIBRARY_IDENTIFIER)))
             throw new IOException("Blocked attempt to access Advertising Identifier without consent.");
 
         return originalMethod(context);

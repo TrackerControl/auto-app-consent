@@ -23,7 +23,7 @@ public class GoogleAdsLibrary extends Library {
     public static void replacementMethod(@NonNull Context context) {
         Log.d(TAG, "successfully hooked GAds");
 
-        if (!Boolean.TRUE.equals(ConsentManager.hasConsent(context, LIBRARY_IDENTIFIER)))
+        if (!Boolean.TRUE.equals(ConsentManager.getInstance().hasConsent(LIBRARY_IDENTIFIER)))
             return;
 
         originalMethod(context);
@@ -37,7 +37,7 @@ public class GoogleAdsLibrary extends Library {
     public static void replacementMethod(@NonNull Context context, @NonNull Object listener) {
         Log.d(TAG, "successfully hooked GAds");
 
-        if (!Boolean.TRUE.equals(ConsentManager.hasConsent(context, LIBRARY_IDENTIFIER)))
+        if (!Boolean.TRUE.equals(ConsentManager.getInstance().hasConsent(LIBRARY_IDENTIFIER)))
             return;
 
         originalMethod(context, listener);
@@ -45,6 +45,20 @@ public class GoogleAdsLibrary extends Library {
 
     // this method will be replaced by hook
     public static void originalMethod(@NonNull Context context, @NonNull Object listener) {
+        throw new RuntimeException("Could not overwrite original Firebase method");
+    }
+
+    public static void replacementLoadAd(Object thiz, @NonNull Object adRequest) {
+        Log.d(TAG, "successfully hooked GAds");
+
+        if (!Boolean.TRUE.equals(ConsentManager.getInstance().hasConsent(LIBRARY_IDENTIFIER)))
+            return;
+
+        originalLoadAd(thiz, adRequest);
+    }
+
+    // this method will be replaced by hook
+    public static void originalLoadAd(Object thiz, @NonNull Object adRequest) {
         throw new RuntimeException("Could not overwrite original Firebase method");
     }
 
@@ -62,9 +76,26 @@ public class GoogleAdsLibrary extends Library {
     public Library initialise(Context context) throws LibraryInteractionException {
         super.initialise(context);
 
+        // public void loadAd(@NonNull AdRequest adRequest) {
+        try {
+            Class advertisingIdClass = Class.forName("com.google.android.gms.ads.BaseAdView");
+            String methodName = "loadAd";
+            String methodSig = "(Lcom/google/android/gms/ads/AdRequest;)V";
+
+            try {
+                Method methodOrig = (Method) HookMain.findMethodNative(advertisingIdClass, methodName, methodSig);
+                Method methodHook = GoogleAdsLibrary.class.getMethod("replacementLoadAd", Object.class, Object.class);
+                Method methodBackup = GoogleAdsLibrary.class.getMethod("originalLoadAd", Object.class, Object.class);
+                HookMain.backupAndHook(methodOrig, methodHook, methodBackup);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException("Could not overwrite method");
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
         //.method public static initialize(Landroid/content/Context;)V
         //.method public static initialize(Landroid/content/Context;Lcom/google/android/gms/ads/initialization/OnInitializationCompleteListener;)V
-
         try {
             Class advertisingIdClass = Class.forName(getBaseClass());
             String methodName = "initialize";
