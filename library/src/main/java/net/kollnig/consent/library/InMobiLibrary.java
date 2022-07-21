@@ -47,21 +47,17 @@ public class InMobiLibrary extends Library {
         super.initialise(context);
 
         // InMobiSdk.init(this, "Insert InMobi Account ID here", consentObject, new SdkInitializationListener()
-        try {
-            Class baseClass = Class.forName(getBaseClass());
-            String methodName = "init";
-            String methodSig = "(Landroid/content/Context;Ljava/lang/String;Lorg/json/JSONObject;Lcom/inmobi/sdk/SdkInitializationListener;)V";
+        Class baseClass = findBaseClass();
+        String methodName = "init";
+        String methodSig = "(Landroid/content/Context;Ljava/lang/String;Lorg/json/JSONObject;Lcom/inmobi/sdk/SdkInitializationListener;)V";
 
-            try {
-                Method methodOrig = (Method) HookMain.findMethodNative(baseClass, methodName, methodSig);
-                Method methodHook = InMobiLibrary.class.getMethod("replacementInit", Context.class, String.class, JSONObject.class, Object.class);
-                Method methodBackup = InMobiLibrary.class.getMethod("originalInit", Context.class, String.class, JSONObject.class, Object.class);
-                HookMain.backupAndHook(methodOrig, methodHook, methodBackup);
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException("Could not overwrite method");
-            }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        try {
+            Method methodOrig = (Method) HookMain.findMethodNative(baseClass, methodName, methodSig);
+            Method methodHook = InMobiLibrary.class.getMethod("replacementInit", Context.class, String.class, JSONObject.class, Object.class);
+            Method methodBackup = InMobiLibrary.class.getMethod("originalInit", Context.class, String.class, JSONObject.class, Object.class);
+            HookMain.backupAndHook(methodOrig, methodHook, methodBackup);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Could not overwrite method");
         }
 
         return this;

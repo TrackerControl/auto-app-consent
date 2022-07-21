@@ -37,7 +37,7 @@ public class AppsFlyerLibrary extends Library {
 
         // AppsFlyerLib.getInstance().start(this);
         try {
-            Class abstractBaseClass = Class.forName(getBaseClass());
+            Class abstractBaseClass = findBaseClass();
             Method getInstance = abstractBaseClass.getMethod("getInstance");
             Object instance = getInstance.invoke(null);
 
@@ -53,7 +53,7 @@ public class AppsFlyerLibrary extends Library {
             } catch (NoSuchMethodException e) {
                 throw new RuntimeException("Could not overwrite method");
             }
-        } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         }
 
@@ -63,12 +63,12 @@ public class AppsFlyerLibrary extends Library {
     @Override
     public void passConsentToLibrary(boolean consent) {
         try {
-            Class abstractBaseClass = Class.forName(getBaseClass());
+            Class abstractBaseClass = findBaseClass();
             Method getInstance = abstractBaseClass.getMethod("getInstance");
             Object instance = getInstance.invoke(null);
             Method stop = abstractBaseClass.getMethod("stop", boolean.class, Context.class);
             stop.invoke(instance, !consent, getContext());
-        } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         }
     }

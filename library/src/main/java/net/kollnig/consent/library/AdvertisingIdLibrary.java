@@ -35,21 +35,17 @@ public class AdvertisingIdLibrary extends Library {
     public Library initialise(Context context) throws LibraryInteractionException {
         super.initialise(context);
 
-        try {
-            Class advertisingIdClass = Class.forName(getBaseClass());
-            String methodName = "getAdvertisingIdInfo";
-            String methodSig = "(Landroid/content/Context;)Lcom/google/android/gms/ads/identifier/AdvertisingIdClient$Info;";
+        Class advertisingIdClass = findBaseClass();
+        String methodName = "getAdvertisingIdInfo";
+        String methodSig = "(Landroid/content/Context;)Lcom/google/android/gms/ads/identifier/AdvertisingIdClient$Info;";
 
-            try {
-                Method methodOrig = (Method) HookMain.findMethodNative(advertisingIdClass, methodName, methodSig);
-                Method methodHook = AdvertisingIdLibrary.class.getMethod("replacementMethod", Context.class);
-                Method methodBackup = AdvertisingIdLibrary.class.getMethod("originalMethod", Context.class);
-                HookMain.backupAndHook(methodOrig, methodHook, methodBackup);
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException("Could not overwrite method");
-            }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        try {
+            Method methodOrig = (Method) HookMain.findMethodNative(advertisingIdClass, methodName, methodSig);
+            Method methodHook = AdvertisingIdLibrary.class.getMethod("replacementMethod", Context.class);
+            Method methodBackup = AdvertisingIdLibrary.class.getMethod("originalMethod", Context.class);
+            HookMain.backupAndHook(methodOrig, methodHook, methodBackup);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Could not overwrite method");
         }
 
         return this;

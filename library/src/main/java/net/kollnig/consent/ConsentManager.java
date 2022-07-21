@@ -10,6 +10,7 @@ import android.widget.Button;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
+import net.kollnig.consent.library.AdColonyLibrary;
 import net.kollnig.consent.library.AdvertisingIdLibrary;
 import net.kollnig.consent.library.AppLovinLibrary;
 import net.kollnig.consent.library.AppsFlyerLibrary;
@@ -48,7 +49,8 @@ public class ConsentManager {
             new AppsFlyerLibrary(),
             new InMobiLibrary(),
             new FlurryLibrary(),
-            new IronSourceLibrary()
+            new IronSourceLibrary(),
+            new AdColonyLibrary()
     };
 
     private ConsentManager(Context context,

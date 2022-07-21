@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
 import lab.galaxy.yahfa.HookMain;
 
 public class FlurryLibrary extends Library {
-    public static final String LIBRARY_IDENTIFIER = "inmobi";
+    public static final String LIBRARY_IDENTIFIER = "flurry";
     static final String TAG = "HOOKED";
 
     public static void replacementBuild(Object thiz, @NonNull Context var1, @NonNull String var2) {
@@ -43,21 +43,17 @@ public class FlurryLibrary extends Library {
         super.initialise(context);
 
         // build(Landroid/content/Context;Ljava/lang/String;)V
-        try {
-            Class baseClass = Class.forName(getBaseClass());
-            String methodName = "build";
-            String methodSig = "(Landroid/content/Context;Ljava/lang/String;)V";
+        Class baseClass = findBaseClass();
+        String methodName = "build";
+        String methodSig = "(Landroid/content/Context;Ljava/lang/String;)V";
 
-            try {
-                Method methodOrig = (Method) HookMain.findMethodNative(baseClass, methodName, methodSig);
-                Method methodHook = FlurryLibrary.class.getMethod("replacementBuild", Object.class, Context.class, String.class);
-                Method methodBackup = FlurryLibrary.class.getMethod("originalBuild", Object.class, Context.class, String.class);
-                HookMain.backupAndHook(methodOrig, methodHook, methodBackup);
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException("Could not overwrite method");
-            }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        try {
+            Method methodOrig = (Method) HookMain.findMethodNative(baseClass, methodName, methodSig);
+            Method methodHook = FlurryLibrary.class.getMethod("replacementBuild", Object.class, Context.class, String.class);
+            Method methodBackup = FlurryLibrary.class.getMethod("originalBuild", Object.class, Context.class, String.class);
+            HookMain.backupAndHook(methodOrig, methodHook, methodBackup);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Could not overwrite method");
         }
 
         return this;

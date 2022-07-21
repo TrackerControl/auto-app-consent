@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.adcolony.sdk.AdColony;
 import com.appsflyer.AppsFlyerLib;
 import com.flurry.android.FlurryAgent;
 import com.google.android.gms.ads.AdRequest;
@@ -78,6 +79,11 @@ public class MainActivity extends AppCompatActivity {
         IronSource.setConsent(false);
 
         IronSource.init(this, "abcdefghhijkl");
+
+        // a(Context var0, AdColonyAppOptions var1, @NonNull String var2)
+        AdColony.configure(this, "abcdefhashsh");
+        // AdColony.setAppOptions();
+        // AdColonyAppOptions
 
         //AdvertisingIdClient.getAdvertisingIdInfo();
 

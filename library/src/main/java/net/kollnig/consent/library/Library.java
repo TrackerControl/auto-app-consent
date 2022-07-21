@@ -42,17 +42,22 @@ public abstract class Library {
     abstract public void passConsentToLibrary(boolean consent) throws LibraryInteractionException;
 
     public boolean isPresent() {
-        return findBaseClass() != null;
+        try {
+            findBaseClass();
+            return true;
+        } catch (RuntimeException e) {
+            return false;
+        }
     }
 
     abstract String getBaseClass();
 
     @Nullable
-    Class findBaseClass() {
+    Class<?> findBaseClass() {
         try {
             return Class.forName(getBaseClass());
         } catch (ClassNotFoundException e) {
-            return null;
+            throw new RuntimeException("Did not find base class: " + getBaseClass());
         }
     }
 

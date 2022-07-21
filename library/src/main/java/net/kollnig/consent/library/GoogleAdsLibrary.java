@@ -96,27 +96,23 @@ public class GoogleAdsLibrary extends Library {
 
         //.method public static initialize(Landroid/content/Context;)V
         //.method public static initialize(Landroid/content/Context;Lcom/google/android/gms/ads/initialization/OnInitializationCompleteListener;)V
+        Class baseClass = findBaseClass();
+        String methodName = "initialize";
+        String methodSig = "(Landroid/content/Context;)V";
+
         try {
-            Class baseClass = Class.forName(getBaseClass());
-            String methodName = "initialize";
-            String methodSig = "(Landroid/content/Context;)V";
+            Method methodOrig = (Method) HookMain.findMethodNative(baseClass, methodName, methodSig);
+            Method methodHook = GoogleAdsLibrary.class.getMethod("replacementMethod", Context.class);
+            Method methodBackup = GoogleAdsLibrary.class.getMethod("originalMethod", Context.class);
+            HookMain.backupAndHook(methodOrig, methodHook, methodBackup);
 
-            try {
-                Method methodOrig = (Method) HookMain.findMethodNative(baseClass, methodName, methodSig);
-                Method methodHook = GoogleAdsLibrary.class.getMethod("replacementMethod", Context.class);
-                Method methodBackup = GoogleAdsLibrary.class.getMethod("originalMethod", Context.class);
-                HookMain.backupAndHook(methodOrig, methodHook, methodBackup);
-
-                String methodSig2 = "(Landroid/content/Context;Lcom/google/android/gms/ads/initialization/OnInitializationCompleteListener;)V";
-                Method methodOrig2 = (Method) HookMain.findMethodNative(baseClass, methodName, methodSig2);
-                Method methodHook2 = GoogleAdsLibrary.class.getMethod("replacementMethod", Context.class, Object.class);
-                Method methodBackup2 = GoogleAdsLibrary.class.getMethod("originalMethod", Context.class, Object.class);
-                HookMain.backupAndHook(methodOrig2, methodHook2, methodBackup2);
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException("Could not overwrite method");
-            }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            String methodSig2 = "(Landroid/content/Context;Lcom/google/android/gms/ads/initialization/OnInitializationCompleteListener;)V";
+            Method methodOrig2 = (Method) HookMain.findMethodNative(baseClass, methodName, methodSig2);
+            Method methodHook2 = GoogleAdsLibrary.class.getMethod("replacementMethod", Context.class, Object.class);
+            Method methodBackup2 = GoogleAdsLibrary.class.getMethod("originalMethod", Context.class, Object.class);
+            HookMain.backupAndHook(methodOrig2, methodHook2, methodBackup2);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Could not overwrite method");
         }
 
         return this;

@@ -35,7 +35,7 @@ public class IronSourceLibrary extends Library {
             } catch (NoSuchMethodException
                     | IllegalAccessException
                     | InvocationTargetException e) {
-                throw new LibraryInteractionException("Could not save settings to Facebook SDK.");
+                throw new LibraryInteractionException("Could not save settings to ironSource.");
             }
         }
     }
