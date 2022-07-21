@@ -17,7 +17,7 @@ import java.lang.reflect.Method;
 
 import lab.galaxy.yahfa.HookMain;
 
-public class InmobiLibrary extends Library {
+public class InMobiLibrary extends Library {
     public static final String LIBRARY_IDENTIFIER = "inmobi";
     static final String TAG = "HOOKED";
 
@@ -54,8 +54,8 @@ public class InmobiLibrary extends Library {
 
             try {
                 Method methodOrig = (Method) HookMain.findMethodNative(baseClass, methodName, methodSig);
-                Method methodHook = InmobiLibrary.class.getMethod("replacementInit", Context.class, String.class, JSONObject.class, Object.class);
-                Method methodBackup = InmobiLibrary.class.getMethod("originalInit", Context.class, String.class, JSONObject.class, Object.class);
+                Method methodHook = InMobiLibrary.class.getMethod("replacementInit", Context.class, String.class, JSONObject.class, Object.class);
+                Method methodBackup = InMobiLibrary.class.getMethod("originalInit", Context.class, String.class, JSONObject.class, Object.class);
                 HookMain.backupAndHook(methodOrig, methodHook, methodBackup);
             } catch (NoSuchMethodException e) {
                 throw new RuntimeException("Could not overwrite method");

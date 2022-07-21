@@ -18,6 +18,9 @@ At the moment, this project automatically implements a consent flow if your app 
 - Google Ads
 - Facebook SDK
 - AppLovin
+- Flurry
+- InMobi
+- AppsFlyer
 - Google Play Services Advertising Identifier Library
 
 *Note that the use of Google and Facebook services in the EU is [likely illegal even with user consent](https://noyb.eu/en/austrian-dsb-eu-us-data-transfers-google-analytics-illegal), because data is sent to the US and can be used for unlawful surveillance of EU citizens.*
@@ -42,7 +45,7 @@ allprojects {
 2. Add the library:
 ```gradle
 dependencies {
-        implementation 'com.github.kasnder:app-consent-android:0.3'
+        implementation 'com.github.kasnder:app-consent-android:0.4'
 }
 ```
 3. Initialise the library by calling
