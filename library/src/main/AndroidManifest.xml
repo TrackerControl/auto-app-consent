@@ -6,16 +6,31 @@
         <!-- Google Firebase Analytics -->
         <!--<meta-data android:name="google_analytics_adid_collection_enabled" android:value="false" />-->
         <meta-data android:name="google_analytics_ssaid_collection_enabled" android:value="false" />
-        <meta-data android:name="firebase_analytics_collection_enabled" android:value="false" />
-        <meta-data android:name="google_analytics_default_allow_ad_personalization_signals" android:value="false" />
+        <meta-data
+            android:name="firebase_analytics_collection_enabled"
+            android:value="false" />
+        <meta-data
+            android:name="google_analytics_default_allow_ad_personalization_signals"
+            android:value="false" />
 
         <!-- Facebook SDK -->
-        <meta-data android:name="com.facebook.sdk.AutoInitEnabled" android:value="false"/>
-        <meta-data android:name="com.facebook.sdk.AutoLogAppEventsEnabled" android:value="false"/>
+        <meta-data
+            android:name="com.facebook.sdk.AutoInitEnabled"
+            android:value="false" />
+        <meta-data
+            android:name="com.facebook.sdk.AutoLogAppEventsEnabled"
+            android:value="false" />
         <!--<meta-data android:name="com.facebook.sdk.AdvertiserIDCollectionEnabled" android:value="false"/>-->
 
         <!-- Google Ads -->
-        <meta-data android:name="com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT" android:value="true"/>
+        <meta-data
+            android:name="com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT"
+            android:value="true" />
+
+        <!-- Google Crashlytics -->
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="false" />
     </application>
 
 </manifest>

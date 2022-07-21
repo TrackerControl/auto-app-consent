@@ -14,6 +14,7 @@ import net.kollnig.consent.library.AdColonyLibrary;
 import net.kollnig.consent.library.AdvertisingIdLibrary;
 import net.kollnig.consent.library.AppLovinLibrary;
 import net.kollnig.consent.library.AppsFlyerLibrary;
+import net.kollnig.consent.library.CrashlyticsLibrary;
 import net.kollnig.consent.library.FacebookSdkLibrary;
 import net.kollnig.consent.library.FirebaseAnalyticsLibrary;
 import net.kollnig.consent.library.FlurryLibrary;
@@ -42,6 +43,7 @@ public class ConsentManager {
 
     Library[] availableLibraries = {
             new FirebaseAnalyticsLibrary(),
+            new CrashlyticsLibrary(),
             new FacebookSdkLibrary(),
             new AppLovinLibrary(),
             new AdvertisingIdLibrary(),

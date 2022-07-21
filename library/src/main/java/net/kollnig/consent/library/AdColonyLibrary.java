@@ -131,9 +131,8 @@ public class AdColonyLibrary extends Library {
                 Object options = getAppOptions(consent);
 
                 // AdColony.setAppOptions();
-                Object[] arglist = {options};
                 Method setAppOptions = baseClass.getMethod("setAppOptions", options.getClass());
-                setAppOptions.invoke(null, arglist);
+                setAppOptions.invoke(null, options);
             } catch (NoSuchMethodException
                     | IllegalAccessException
                     | InvocationTargetException e) {

@@ -19,6 +19,7 @@ import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.inmobi.sdk.InMobiSdk;
 import com.ironsource.mediationsdk.IronSource;
 
@@ -84,6 +85,8 @@ public class MainActivity extends AppCompatActivity {
         AdColony.configure(this, "abcdefhashsh");
         // AdColony.setAppOptions();
         // AdColonyAppOptions
+
+        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true);
 
         //AdvertisingIdClient.getAdvertisingIdInfo();
 

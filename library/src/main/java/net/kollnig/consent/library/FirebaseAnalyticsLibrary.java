@@ -22,14 +22,12 @@ public class FirebaseAnalyticsLibrary extends Library {
         if (baseClass != null) {
             try {
                 // Call FirebaseAnalytics.getInstance(context)
-                Object[] arglist = {getContext()};
                 Method getInstance = baseClass.getMethod("getInstance", Context.class);
-                Object firebaseAnalytics = getInstance.invoke(null, arglist);
+                Object firebaseAnalytics = getInstance.invoke(null, getContext());
 
                 // Call FirebaseAnalytics.setAnalyticsCollectionEnabled(true)
-                arglist[0] = consent;
                 Method setAnalyticsCollectionEnabled = baseClass.getMethod("setAnalyticsCollectionEnabled", boolean.class);
-                setAnalyticsCollectionEnabled.invoke(firebaseAnalytics, arglist);
+                setAnalyticsCollectionEnabled.invoke(firebaseAnalytics, consent);
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 throw new LibraryInteractionException("Could not save settings to Firebase Analytics.");
             }

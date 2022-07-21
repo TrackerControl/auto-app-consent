@@ -22,14 +22,12 @@ public class AppLovinLibrary extends Library {
         if (baseClass != null) {
             try {
                 // Call AppLovinPrivacySettings.setDoNotSell( consent, context );
-                Object[] arglist = {!consent, getContext()};
                 Method setDoNotSell = baseClass.getMethod("setDoNotSell", boolean.class, Context.class);
-                setDoNotSell.invoke(null, arglist);
+                setDoNotSell.invoke(null, !consent, getContext());
 
                 // Call AppLovinPrivacySettings.setHasUserConsent( consent, context );
-                arglist[0] = consent;
                 Method setHasUserConsent = baseClass.getMethod("setHasUserConsent", boolean.class, Context.class);
-                setHasUserConsent.invoke(null, arglist);
+                setHasUserConsent.invoke(null, consent, getContext());
 
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 throw new LibraryInteractionException("Could not save settings to Applovin.");

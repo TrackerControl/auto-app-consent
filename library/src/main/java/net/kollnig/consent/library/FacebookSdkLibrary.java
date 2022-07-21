@@ -19,11 +19,9 @@ public class FacebookSdkLibrary extends Library {
         Class baseClass = findBaseClass();
         if (baseClass != null) {
             try {
-                Object[] arglist = {consent};
-
                 // Call FacebookSdk.setAutoInitEnabled(consent);
                 Method setAutoInitEnabled = baseClass.getMethod("setAutoInitEnabled", boolean.class);
-                setAutoInitEnabled.invoke(null, arglist);
+                setAutoInitEnabled.invoke(null, consent);
 
                 // Call FacebookSdk.fullyInitialize();
                 if (!consent) {
@@ -34,7 +32,7 @@ public class FacebookSdkLibrary extends Library {
                 // Call FacebookSdk.setAutoLogAppEventsEnabled(consent);
                 try {
                     Method setAutoLogAppEventsEnabled = baseClass.getMethod("setAutoLogAppEventsEnabled", boolean.class);
-                    setAutoLogAppEventsEnabled.invoke(null, arglist);
+                    setAutoLogAppEventsEnabled.invoke(null, consent);
                 } catch (InvocationTargetException e) {
                     if (!e.getTargetException().getClass().getName().equals("com.facebook.FacebookSdkNotInitializedException"))
                         throw e;
@@ -42,7 +40,7 @@ public class FacebookSdkLibrary extends Library {
 
                 // Call FacebookSdk.setAdvertiserIDCollectionEnabled(consent);
                 //Method setAdvertiserIDCollectionEnabled = baseClass.getMethod("setAdvertiserIDCollectionEnabled", boolean.class);
-                //setAdvertiserIDCollectionEnabled.invoke(null, arglist);
+                //setAdvertiserIDCollectionEnabled.invoke(null, consent);
             } catch (NoSuchMethodException
                     | IllegalAccessException
                     | InvocationTargetException e) {

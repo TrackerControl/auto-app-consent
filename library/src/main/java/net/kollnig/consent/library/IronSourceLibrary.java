@@ -20,18 +20,15 @@ public class IronSourceLibrary extends Library {
         if (baseClass != null) {
             try {
                 // IronSource.setConsent(false);
-                Object[] arglist = {consent};
                 Method setConsent = baseClass.getMethod("setConsent", boolean.class);
-                setConsent.invoke(null, arglist);
+                setConsent.invoke(null, consent);
 
                 // IronSource.setMetaData("do_not_sell","true");
-                Object[] arglist2 = {"do_not_sell", Boolean.toString(!consent)};
                 Method setMetaData = baseClass.getMethod("setMetaData", String.class, String.class);
-                setMetaData.invoke(null, arglist2);
+                setMetaData.invoke(null, "do_not_sell", Boolean.toString(!consent));
 
                 // IronSource.setMetaData("is_deviceid_optout","true");
-                arglist2[0] = "is_deviceid_optout";
-                setMetaData.invoke(null, arglist2);
+                setMetaData.invoke(null, "is_deviceid_optout", Boolean.toString(!consent));
             } catch (NoSuchMethodException
                     | IllegalAccessException
                     | InvocationTargetException e) {
