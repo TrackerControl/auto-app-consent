@@ -69,9 +69,9 @@ ConsentManager consentManager =
    For example, for Firebase Analytics: `.setExcludedLibraries(new String[]{"firebase_analytics"})`.
    You can see the identifiers of all currently managed libraries
    through `consentManager.getManagedLibraries()`.
-6. By extending the class `net.kollnig.consent.library.Library`, you can hook connect further
+6. By extending the class `net.kollnig.consent.library.Library`, you can connect further
    libraries. Use the `setCustomLibraries()` method of the `ConsentManager.Builder` to include them,
-   e.g. `.setCustomLibraries(new Library[]{new CustomLibrary()})`.
+   e.g. `.setCustomLibraries(new Library[]{new CustomLibrary()})`. See the directory `library/src/main/java/net/kollnig/consent/library/` for example implementations.
 
 You can check the example project in `app/` to see how the library is used.
 
