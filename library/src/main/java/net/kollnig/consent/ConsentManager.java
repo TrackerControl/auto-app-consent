@@ -18,6 +18,7 @@ import net.kollnig.consent.library.FirebaseAnalyticsLibrary;
 import net.kollnig.consent.library.FlurryLibrary;
 import net.kollnig.consent.library.GoogleAdsLibrary;
 import net.kollnig.consent.library.InMobiLibrary;
+import net.kollnig.consent.library.IronSourceLibrary;
 import net.kollnig.consent.library.Library;
 import net.kollnig.consent.library.LibraryInteractionException;
 
@@ -46,7 +47,8 @@ public class ConsentManager {
             new GoogleAdsLibrary(),
             new AppsFlyerLibrary(),
             new InMobiLibrary(),
-            new FlurryLibrary()
+            new FlurryLibrary(),
+            new IronSourceLibrary()
     };
 
     private ConsentManager(Context context,

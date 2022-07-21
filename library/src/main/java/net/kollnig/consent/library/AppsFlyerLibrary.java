@@ -37,10 +37,9 @@ public class AppsFlyerLibrary extends Library {
 
         // AppsFlyerLib.getInstance().start(this);
         try {
-            Object[] arglist = {};
             Class abstractBaseClass = Class.forName(getBaseClass());
             Method getInstance = abstractBaseClass.getMethod("getInstance");
-            Object instance = getInstance.invoke(null, arglist);
+            Object instance = getInstance.invoke(null);
 
             Class baseClass = instance.getClass();
             String methodName = "start";
@@ -64,10 +63,9 @@ public class AppsFlyerLibrary extends Library {
     @Override
     public void passConsentToLibrary(boolean consent) {
         try {
-            Object[] arglist = {};
             Class abstractBaseClass = Class.forName(getBaseClass());
             Method getInstance = abstractBaseClass.getMethod("getInstance");
-            Object instance = getInstance.invoke(null, arglist);
+            Object instance = getInstance.invoke(null);
             Method stop = abstractBaseClass.getMethod("stop", boolean.class, Context.class);
             stop.invoke(instance, !consent, getContext());
         } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {

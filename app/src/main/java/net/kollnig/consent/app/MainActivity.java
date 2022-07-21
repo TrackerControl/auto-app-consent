@@ -19,6 +19,7 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.inmobi.sdk.InMobiSdk;
+import com.ironsource.mediationsdk.IronSource;
 
 import net.kollnig.consent.ConsentManager;
 
@@ -72,6 +73,12 @@ public class MainActivity extends AppCompatActivity {
 
         //AppsFlyerLib.getInstance();
 
+        IronSource.setMetaData("do_not_sell", "true");
+        IronSource.setMetaData("is_deviceid_optout", "true");
+        IronSource.setConsent(false);
+
+        IronSource.init(this, "abcdefghhijkl");
+
         //AdvertisingIdClient.getAdvertisingIdInfo();
 
         AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
@@ -104,5 +111,15 @@ public class MainActivity extends AppCompatActivity {
 
         };
         task.execute();
+    }
+
+    protected void onResume() {
+        super.onResume();
+        IronSource.onResume(this);
+    }
+
+    protected void onPause() {
+        super.onPause();
+        IronSource.onPause(this);
     }
 }

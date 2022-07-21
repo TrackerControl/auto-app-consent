@@ -8,6 +8,7 @@
     <string name="aaid_consent_msg">This app would like to access the Google Advertising Identifier.\n\nThis involves accessing an identifier that can track your activity across apps.</string>
     <string name="google_ads_consent_msg">This app would like to use Google Ads to show you ads.\n\nThis involves using cookies and similar technologies and sharing your personal data with third-party companies.</string>
     <string name="inmobi_consent_msg">This app would like to use InMobi to show you ads.\n\nThis involves using cookies and similar technologies and sharing your personal data with third-party companies.</string>
+    <string name="ironsource_consent_msg">This app would like to use ironSource to show you ads.\n\nThis involves using cookies and similar technologies and sharing your personal data with third-party companies.</string>
     <string name="appsflyer_consent_msg">This app would like to use AppsFlyer to understand your interactions with the app.\n\nThis involves using cookies and similar technologies and sharing your personal data with third-party companies.</string>
     <string name="flurry_consent_msg">This app would like to use Flurry to understand your interactions with the app.\n\nThis involves using cookies and similar technologies and sharing your personal data with third-party companies.</string>
 
@@ -17,6 +18,7 @@
     <string name="aaid">Google Advertising Identifier (an identifier that can track your activity across apps)</string>
     <string name="google_ads">Google Ads (to show you ads; sends data to third-party companies)</string>
     <string name="inmobi">InMobi (to show you ads; sends data to third-party companies)</string>
+    <string name="ironsource">ironSource (to show you ads; sends data to third-party companies)</string>
     <string name="appsflyer">AppsFlyer (to understand your interactions with the app; sends data to third-party companies)</string>
     <string name="flurry">Flurry (to understand your interactions with the app; sends data to third-party companies)</string>
 
