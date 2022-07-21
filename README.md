@@ -1,4 +1,4 @@
-# App Consent
+# App Consent (Alpha / Pre-release)
 
 This repository shall help *app developers* implement consent in apps correctly. This helps
 compliance with the GDPR, CCPA and other legal regimes. The motivation for this project that our research at Oxford found that less than 4% of Android apps implement any form of consent: <https://www.usenix.org/conference/soups2021/presentation/kollnig>
