@@ -94,6 +94,8 @@ The following gives more details on how this tool interacts with third-party lib
 
 **Uses hooks:** No
 
+**Further details:** <https://firebase.google.com/docs/analytics/configure-data-collection?platform=android>
+
 ### Google Crashlytics
 
 **Purpose:** Crash reporting
@@ -103,6 +105,8 @@ The following gives more details on how this tool interacts with third-party lib
 **Further reduced data collection:** None, except that the `firebase_crashlytics_collection_enabled` flag is set to `false` in the `AndroidManifest.xml` file to implement consent.
 
 **Uses hooks:** No
+
+**Further details:** <https://firebase.google.com/docs/crashlytics/customize-crash-reports?platform=android>
 
 ### Google Ads
 
@@ -114,6 +118,8 @@ The following gives more details on how this tool interacts with third-party lib
 
 **Uses hooks:** Yes
 
+**Further details:** <https://developers.google.com/admob/ump/android/quick-start>
+
 ### Facebook SDK
 
 **Purpose:** Various functionality, including analytics
@@ -123,6 +129,8 @@ The following gives more details on how this tool interacts with third-party lib
 **Further reduced data collection:** None, except that the `com.facebook.sdk.AutoInitEnabled` and `com.facebook.sdk.AutoLogAppEventsEnabled` are flags set to `false` in the `AndroidManifest.xml` file to implement consent.
 
 **Uses hooks:** No
+
+**Further details:** <https://developers.facebook.com/docs/app-events/gdpr-compliance/>
 
 ### AppLovin
 
@@ -134,6 +142,8 @@ The following gives more details on how this tool interacts with third-party lib
 
 **Uses hooks:** No
 
+**Further details:** <https://dash.applovin.com/documentation/mediation/android/getting-started/privacy>
+
 ### Flurry
 
 **Purpose:** Various functionality, including analytics 
@@ -143,6 +153,8 @@ The following gives more details on how this tool interacts with third-party lib
 **Further reduced data collection:** None
 
 **Uses hooks:** Yes
+
+**Further details:** <https://developer.yahoo.com/flurry/docs/integrateflurry/android/>
 
 ### InMobi
 
@@ -154,6 +166,8 @@ The following gives more details on how this tool interacts with third-party lib
 
 **Uses hooks:** Yes
 
+**Further details:** <https://support.inmobi.com/monetize/android-guidelines/>
+
 ### AppsFlyer
 
 **Purpose:** Ad attribution
@@ -163,6 +177,8 @@ The following gives more details on how this tool interacts with third-party lib
 **Further reduced data collection:** None
 
 **Uses hooks:** Yes
+
+**Further details:** <https://support.appsflyer.com/hc/en-us/articles/360001422989-User-opt-in-opt-out-in-the-AppsFlyer-SDK>
 
 ### ironSource
 
@@ -174,6 +190,8 @@ The following gives more details on how this tool interacts with third-party lib
 
 **Uses hooks:** No
 
+**Further details:** <https://developers.is.com/ironsource-mobile/android/regulation-advanced-settings/#step-1>
+
 ### AdColony
 
 **Purpose:** Ads
@@ -183,6 +201,8 @@ The following gives more details on how this tool interacts with third-party lib
 **Further reduced data collection:** None
 
 **Uses hooks:** Yes
+
+**Further details:** <https://github.com/AdColony/AdColony-Android-SDK/wiki/Privacy-Laws>
 
 ### Vungle
 
@@ -194,6 +214,8 @@ The following gives more details on how this tool interacts with third-party lib
 
 **Uses hooks:** Yes
 
+**Further details:** <https://support.vungle.com/hc/en-us/articles/360047780372-Advanced-Settings>
+
 ### Google Play Services Advertising Identifier Library
 
 **Purpose:** User identification
@@ -203,3 +225,5 @@ The following gives more details on how this tool interacts with third-party lib
 **Further reduced data collection:** None
 
 **Uses hooks:** Yes
+
+**Further details:** <https://developers.google.com/android/reference/com/google/android/gms/ads/identifier/AdvertisingIdClient>
