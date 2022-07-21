@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.appsflyer.AppsFlyerLib;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
@@ -44,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialise Firebase
         FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
+        AppsFlyerLib.getInstance().start(this);
 
         // Log some event
         Bundle bundle = new Bundle();

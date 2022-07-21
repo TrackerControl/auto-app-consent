@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import net.kollnig.consent.library.AdvertisingIdLibrary;
 import net.kollnig.consent.library.AppLovinLibrary;
+import net.kollnig.consent.library.AppsFlyerLibrary;
 import net.kollnig.consent.library.FacebookSdkLibrary;
 import net.kollnig.consent.library.FirebaseAnalyticsLibrary;
 import net.kollnig.consent.library.GoogleAdsLibrary;
@@ -40,7 +41,8 @@ public class ConsentManager {
             new FacebookSdkLibrary(),
             new AppLovinLibrary(),
             new AdvertisingIdLibrary(),
-            new GoogleAdsLibrary()
+            new GoogleAdsLibrary(),
+            new AppsFlyerLibrary()
     };
 
     private ConsentManager(Context context,
