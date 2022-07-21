@@ -27,11 +27,14 @@ At the moment, this project automatically implements a consent flow if your app 
 - Vungle (untested)
 - Google Play Services Advertising Identifier Library
 
-*Note that the use of Google and Facebook services in the EU is [likely illegal even with user consent](https://noyb.eu/en/austrian-dsb-eu-us-data-transfers-google-analytics-illegal), because data is sent to the US and can be used for unlawful surveillance of EU citizens.*
+*Note that the use of Google and Facebook services in the EU
+is [likely illegal even with user consent](https://noyb.eu/en/austrian-dsb-eu-us-data-transfers-google-analytics-illegal)
+, because data is sent to the US and can be used for unlawful surveillance of EU citizens. The same
+applies to other US-based services.*
 
 <img src="assets/screen.png"
-      alt="Screenshot of the automatic consent flow."
-      width="50%">
+alt="Screenshot of the automatic consent flow."
+width="50%">
 
 ## Installation
 
