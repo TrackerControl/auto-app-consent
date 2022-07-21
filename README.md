@@ -1,14 +1,17 @@
 # App Consent
 
-This repository shall help app developers implement consent in apps correctly. This helps
+This repository shall help *app developers* implement consent in apps correctly. This helps
 compliance with the GDPR, CCPA and other legal regimes. The motivation for this project that our research at Oxford found that less than 4% of Android apps implement any form of consent: <https://www.usenix.org/conference/soups2021/presentation/kollnig>
 
-Specifically, this tool targets the following compliance problems:
+Specifically, this tool targets the following common compliance problems:
 
-- **Problem: **Failure to to implement any consent flows. This can both involve 1) the sharing of data with third-party companies without consent (violating Articles 7 and (35)1 GDPR) and 2) non technically-necessary accessing or storing of data on smartphone (violating Article 5(3) ePrivacy Directive)
-    **Solution:** Automatic implementation of consent flows with this library.
-- **Problem: ** Sharing more data than necessary (violating Article 4(1) GDPR).
-    **Solution:** Many third-party libraries come with configuration options to reduce data collection. This library automatically chooses some of the most common settings.
+**Common Problem 1:** Failure to to implement any consent flows. This can both involve 1) the sharing of data with third-party companies without consent (violating Articles 7 and (35)1 GDPR) and 2) non technically-necessary accessing or storing of data on smartphone (violating Article 5(3) ePrivacy Directive)
+
+**Solution:** Automatic implementation of consent flows with this library.
+
+**Common Problem 2:** Sharing more data than necessary (violating Article 4(1) GDPR).
+
+**Solution:** Many third-party libraries come with configuration options to reduce data collection. This library automatically chooses some of the most common settings.
 
 At the moment, this project automatically implements a consent flow if your app uses one of the following SDKs:
 
