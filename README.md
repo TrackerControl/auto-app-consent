@@ -227,3 +227,9 @@ The following gives more details on how this tool interacts with third-party lib
 **Uses hooks:** Yes
 
 **Further details:** <https://developers.google.com/android/reference/com/google/android/gms/ads/identifier/AdvertisingIdClient>
+
+## Contribution
+
+Contributions to this project are highly welcome. Help is welcome with testing, improving the stability of the existing code, keeping up with changes of the third-party libraries and contributing new adapters for third-party libraries.
+
+Feel free to file an issue or pull request with any of your ideas!
