@@ -1,9 +1,6 @@
 package net.kollnig.consent.library;
 
-import static android.content.Context.MODE_PRIVATE;
-
 import android.content.Context;
-import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -11,7 +8,6 @@ import androidx.annotation.NonNull;
 import net.kollnig.consent.ConsentManager;
 import net.kollnig.consent.R;
 
-import java.io.File;
 import java.lang.reflect.Method;
 
 import lab.galaxy.yahfa.HookMain;
@@ -62,23 +58,13 @@ public class GoogleAdsLibrary extends Library {
         throw new RuntimeException("Could not overwrite original Firebase method");
     }
 
-    public static boolean deleteSharedPreferences(Context context, String name) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return context.deleteSharedPreferences(name);
-        } else {
-            context.getSharedPreferences(name, MODE_PRIVATE).edit().clear().apply();
-            File dir = new File(context.getApplicationInfo().dataDir, "shared_prefs");
-            return new File(dir, name + ".xml").delete();
-        }
-    }
-
     @Override
     public Library initialise(Context context) throws LibraryInteractionException {
         super.initialise(context);
 
         // public void loadAd(@NonNull AdRequest adRequest) {
         try {
-            Class baseClass = Class.forName("com.google.android.gms.ads.BaseAdView");
+            Class<?> baseClass = Class.forName("com.google.android.gms.ads.BaseAdView");
             String methodName = "loadAd";
             String methodSig = "(Lcom/google/android/gms/ads/AdRequest;)V";
 
@@ -96,7 +82,7 @@ public class GoogleAdsLibrary extends Library {
 
         //.method public static initialize(Landroid/content/Context;)V
         //.method public static initialize(Landroid/content/Context;Lcom/google/android/gms/ads/initialization/OnInitializationCompleteListener;)V
-        Class baseClass = findBaseClass();
+        Class<?> baseClass = findBaseClass();
         String methodName = "initialize";
         String methodSig = "(Landroid/content/Context;)V";
 
@@ -127,7 +113,7 @@ public class GoogleAdsLibrary extends Library {
     @Override
     public void passConsentToLibrary(boolean consent) {
         if (!consent)
-            deleteSharedPreferences(getContext(), "admob");
+            getContext().deleteSharedPreferences("admob");
     }
 
     @Override

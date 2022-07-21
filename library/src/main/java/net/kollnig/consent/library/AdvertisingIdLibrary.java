@@ -35,7 +35,7 @@ public class AdvertisingIdLibrary extends Library {
     public Library initialise(Context context) throws LibraryInteractionException {
         super.initialise(context);
 
-        Class advertisingIdClass = findBaseClass();
+        Class<?> advertisingIdClass = findBaseClass();
         String methodName = "getAdvertisingIdInfo";
         String methodSig = "(Landroid/content/Context;)Lcom/google/android/gms/ads/identifier/AdvertisingIdClient$Info;";
 

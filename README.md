@@ -15,6 +15,7 @@ The motivation for this project that our research at Oxford found that less than
 At the moment, this project automatically implements a consent flow if your app uses one of the following SDKs:
 
 - Google Firebase Analytics
+- Google Crashlytics
 - Google Ads
 - Facebook SDK
 - AppLovin
@@ -23,6 +24,7 @@ At the moment, this project automatically implements a consent flow if your app 
 - AppsFlyer
 - ironSource
 - AdColony
+- Vungle (untested)
 - Google Play Services Advertising Identifier Library
 
 *Note that the use of Google and Facebook services in the EU is [likely illegal even with user consent](https://noyb.eu/en/austrian-dsb-eu-us-data-transfers-google-analytics-illegal), because data is sent to the US and can be used for unlawful surveillance of EU citizens.*

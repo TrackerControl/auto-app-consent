@@ -18,19 +18,17 @@ public class FirebaseAnalyticsLibrary extends Library {
 
     @Override
     public void passConsentToLibrary(boolean consent) throws LibraryInteractionException {
-        Class baseClass = findBaseClass();
-        if (baseClass != null) {
-            try {
-                // Call FirebaseAnalytics.getInstance(context)
-                Method getInstance = baseClass.getMethod("getInstance", Context.class);
-                Object firebaseAnalytics = getInstance.invoke(null, getContext());
+        Class<?> baseClass = findBaseClass();
+        try {
+            // Call FirebaseAnalytics.getInstance(context)
+            Method getInstance = baseClass.getMethod("getInstance", Context.class);
+            Object firebaseAnalytics = getInstance.invoke(null, getContext());
 
-                // Call FirebaseAnalytics.setAnalyticsCollectionEnabled(true)
-                Method setAnalyticsCollectionEnabled = baseClass.getMethod("setAnalyticsCollectionEnabled", boolean.class);
-                setAnalyticsCollectionEnabled.invoke(firebaseAnalytics, consent);
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                throw new LibraryInteractionException("Could not save settings to Firebase Analytics.");
-            }
+            // Call FirebaseAnalytics.setAnalyticsCollectionEnabled(true)
+            Method setAnalyticsCollectionEnabled = baseClass.getMethod("setAnalyticsCollectionEnabled", boolean.class);
+            setAnalyticsCollectionEnabled.invoke(firebaseAnalytics, consent);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new LibraryInteractionException("Could not save settings to Firebase Analytics.");
         }
     }
 

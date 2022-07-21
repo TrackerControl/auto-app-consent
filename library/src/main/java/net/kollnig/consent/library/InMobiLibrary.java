@@ -47,7 +47,7 @@ public class InMobiLibrary extends Library {
         super.initialise(context);
 
         // InMobiSdk.init(this, "Insert InMobi Account ID here", consentObject, new SdkInitializationListener()
-        Class baseClass = findBaseClass();
+        Class<?> baseClass = findBaseClass();
         String methodName = "init";
         String methodSig = "(Landroid/content/Context;Ljava/lang/String;Lorg/json/JSONObject;Lcom/inmobi/sdk/SdkInitializationListener;)V";
 

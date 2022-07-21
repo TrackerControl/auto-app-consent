@@ -18,20 +18,18 @@ public class AppLovinLibrary extends Library {
 
     @Override
     public void passConsentToLibrary(boolean consent) throws LibraryInteractionException {
-        Class baseClass = findBaseClass();
-        if (baseClass != null) {
-            try {
-                // Call AppLovinPrivacySettings.setDoNotSell( consent, context );
-                Method setDoNotSell = baseClass.getMethod("setDoNotSell", boolean.class, Context.class);
-                setDoNotSell.invoke(null, !consent, getContext());
+        Class<?> baseClass = findBaseClass();
+        try {
+            // Call AppLovinPrivacySettings.setDoNotSell( consent, context );
+            Method setDoNotSell = baseClass.getMethod("setDoNotSell", boolean.class, Context.class);
+            setDoNotSell.invoke(null, !consent, getContext());
 
-                // Call AppLovinPrivacySettings.setHasUserConsent( consent, context );
-                Method setHasUserConsent = baseClass.getMethod("setHasUserConsent", boolean.class, Context.class);
-                setHasUserConsent.invoke(null, consent, getContext());
+            // Call AppLovinPrivacySettings.setHasUserConsent( consent, context );
+            Method setHasUserConsent = baseClass.getMethod("setHasUserConsent", boolean.class, Context.class);
+            setHasUserConsent.invoke(null, consent, getContext());
 
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                throw new LibraryInteractionException("Could not save settings to Applovin.");
-            }
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new LibraryInteractionException("Could not save settings to Applovin.");
         }
     }
 

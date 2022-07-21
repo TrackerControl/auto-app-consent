@@ -22,6 +22,9 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.inmobi.sdk.InMobiSdk;
 import com.ironsource.mediationsdk.IronSource;
+import com.vungle.warren.InitCallback;
+import com.vungle.warren.Vungle;
+import com.vungle.warren.error.VungleException;
 
 import net.kollnig.consent.ConsentManager;
 
@@ -78,6 +81,23 @@ public class MainActivity extends AppCompatActivity {
         IronSource.setMetaData("do_not_sell", "true");
         IronSource.setMetaData("is_deviceid_optout", "true");
         IronSource.setConsent(false);
+
+        Vungle.init("abcedf", this, new InitCallback() {
+            @Override
+            public void onSuccess() {
+                // do nothing
+            }
+
+            @Override
+            public void onError(VungleException exception) {
+                // do nothing
+            }
+
+            @Override
+            public void onAutoCacheAdAvailable(String placementId) {
+                // do nothing
+            }
+        });
 
         IronSource.init(this, "abcdefghhijkl");
 

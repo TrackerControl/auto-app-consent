@@ -43,7 +43,7 @@ public class FlurryLibrary extends Library {
         super.initialise(context);
 
         // build(Landroid/content/Context;Ljava/lang/String;)V
-        Class baseClass = findBaseClass();
+        Class<?> baseClass = findBaseClass();
         String methodName = "build";
         String methodSig = "(Landroid/content/Context;Ljava/lang/String;)V";
 

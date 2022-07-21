@@ -16,19 +16,17 @@ public class CrashlyticsLibrary extends Library {
 
     @Override
     public void passConsentToLibrary(boolean consent) throws LibraryInteractionException {
-        Class baseClass = findBaseClass();
-        if (baseClass != null) {
-            try {
-                Method getInstance = baseClass.getMethod("getInstance");
-                Object mFirebaseCrashlytics = getInstance.invoke(null);
+        Class<?> baseClass = findBaseClass();
+        try {
+            Method getInstance = baseClass.getMethod("getInstance");
+            Object mFirebaseCrashlytics = getInstance.invoke(null);
 
-                Method set = baseClass.getMethod("setCrashlyticsCollectionEnabled", boolean.class);
-                set.invoke(mFirebaseCrashlytics, consent);
-            } catch (NoSuchMethodException
-                    | IllegalAccessException
-                    | InvocationTargetException e) {
-                throw new LibraryInteractionException("Could not save settings to Crashlytics.");
-            }
+            Method set = baseClass.getMethod("setCrashlyticsCollectionEnabled", boolean.class);
+            set.invoke(mFirebaseCrashlytics, consent);
+        } catch (NoSuchMethodException
+                | IllegalAccessException
+                | InvocationTargetException e) {
+            throw new LibraryInteractionException("Could not save settings to Crashlytics.");
         }
     }
 

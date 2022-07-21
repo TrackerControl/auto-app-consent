@@ -40,9 +40,8 @@ public class AdColonyLibrary extends Library {
         //AdColonyAppOptions options = new AdColonyAppOptions()
         //        .setPrivacyFrameworkRequired(AdColonyAppOptions.GDPR, true)
         //        .setPrivacyConsentString(AdColonyAppOptions.GDPR, consent);
-
         try {
-            Class optionsClass = getOptionsClass();
+            Class<?> optionsClass = getOptionsClass();
             Object options = optionsClass.getConstructor().newInstance();
 
             String GDPR = (String) optionsClass.getDeclaredField("GDPR").get(null);
@@ -106,8 +105,7 @@ public class AdColonyLibrary extends Library {
         // AdColony.configure()
         // a(Context var0, AdColonyAppOptions var1, @NonNull String var2)
         // a(Landroid/content/Context;Lcom/adcolony/sdk/AdColonyAppOptions;Ljava/lang/String;)Z
-
-        Class baseClass = findBaseClass();
+        Class<?> baseClass = findBaseClass();
         String methodName = findInitMethod().getName();
         String methodSig = "(Landroid/content/Context;Lcom/adcolony/sdk/AdColonyAppOptions;Ljava/lang/String;)Z";
 
@@ -126,18 +124,16 @@ public class AdColonyLibrary extends Library {
     @Override
     public void passConsentToLibrary(boolean consent) throws LibraryInteractionException {
         Class<?> baseClass = findBaseClass();
-        if (baseClass != null) {
-            try {
-                Object options = getAppOptions(consent);
+        try {
+            Object options = getAppOptions(consent);
 
-                // AdColony.setAppOptions();
-                Method setAppOptions = baseClass.getMethod("setAppOptions", options.getClass());
-                setAppOptions.invoke(null, options);
-            } catch (NoSuchMethodException
-                    | IllegalAccessException
-                    | InvocationTargetException e) {
-                throw new LibraryInteractionException("Could not save settings to AdColony.");
-            }
+            // AdColony.setAppOptions();
+            Method setAppOptions = baseClass.getMethod("setAppOptions", options.getClass());
+            setAppOptions.invoke(null, options);
+        } catch (NoSuchMethodException
+                | IllegalAccessException
+                | InvocationTargetException e) {
+            throw new LibraryInteractionException("Could not save settings to AdColony.");
         }
     }
 

@@ -37,11 +37,11 @@ public class AppsFlyerLibrary extends Library {
 
         // AppsFlyerLib.getInstance().start(this);
         try {
-            Class abstractBaseClass = findBaseClass();
+            Class<?> abstractBaseClass = findBaseClass();
             Method getInstance = abstractBaseClass.getMethod("getInstance");
             Object instance = getInstance.invoke(null);
 
-            Class baseClass = instance.getClass();
+            Class<?> baseClass = instance.getClass();
             String methodName = "start";
             String methodSig = "(Landroid/content/Context;Ljava/lang/String;Lcom/appsflyer/attribution/AppsFlyerRequestListener;)V";
 
@@ -63,7 +63,7 @@ public class AppsFlyerLibrary extends Library {
     @Override
     public void passConsentToLibrary(boolean consent) {
         try {
-            Class abstractBaseClass = findBaseClass();
+            Class<?> abstractBaseClass = findBaseClass();
             Method getInstance = abstractBaseClass.getMethod("getInstance");
             Object instance = getInstance.invoke(null);
             Method stop = abstractBaseClass.getMethod("stop", boolean.class, Context.class);

@@ -47,8 +47,9 @@ dependencies {
     implementation 'com.google.android.gms:play-services-ads:21.1.0'
 
     //implementation 'com.google.android.gms:play-services-ads:21.1.0'
+    implementation 'com.google.android.gms:play-services-basement:18.1.0'
     implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'
-    
+
     implementation 'com.facebook.android:facebook-android-sdk:latest.release'
 
     implementation 'com.applovin:applovin-sdk:11.4.4'
@@ -62,4 +63,8 @@ dependencies {
     implementation 'com.ironsource.sdk:mediationsdk:7.2.3.1'
 
     implementation 'com.adcolony:sdk:4.8.0'
+
+    implementation 'com.vungle:publisher-sdk-android:6.11.0'
+    implementation 'androidx.core:core:1.8.0'
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
 }

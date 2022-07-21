@@ -23,6 +23,7 @@ import net.kollnig.consent.library.InMobiLibrary;
 import net.kollnig.consent.library.IronSourceLibrary;
 import net.kollnig.consent.library.Library;
 import net.kollnig.consent.library.LibraryInteractionException;
+import net.kollnig.consent.library.VungleLibrary;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -49,6 +50,7 @@ public class ConsentManager {
             new AdvertisingIdLibrary(),
             new GoogleAdsLibrary(),
             new AppsFlyerLibrary(),
+            new VungleLibrary(),
             new InMobiLibrary(),
             new FlurryLibrary(),
             new IronSourceLibrary(),
