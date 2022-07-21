@@ -53,7 +53,7 @@ dependencies {
 
     implementation 'com.inmobi.monetization:inmobi-ads:10.0.8'
 
-    //implementation 'com.flurry.android:analytics:13.3.0'
+    implementation 'com.flurry.android:analytics:13.3.0'
 
     implementation 'com.appsflyer:af-android-sdk:6.3.2'
 }

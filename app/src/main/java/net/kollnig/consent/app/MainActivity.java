@@ -9,6 +9,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.appsflyer.AppsFlyerLib;
+import com.flurry.android.FlurryAgent;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
@@ -51,13 +52,14 @@ public class MainActivity extends AppCompatActivity {
 
         InMobiSdk.init(this, "ACCOUNT_ID_ABCDEFGHIJKLMNOPQRSTUVW");
 
+        new FlurryAgent.Builder().build(this, "ABCDEFGH");
+
         // Log some event
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "id");
         bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "name");
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "image");
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
-
 
         MobileAds.initialize(this);
         AdRequest adRequest = new AdRequest.Builder().build();
