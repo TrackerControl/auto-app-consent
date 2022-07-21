@@ -59,7 +59,13 @@ ConsentManager consentManager =
             .setPrivacyPolicy(Uri.parse("http://www.example.org/privacy"))
             .build();
 ```
-4. If you want to, you can change the title (or message) in the consent flow by changing the `consent_title` (or `consent_msg`) string.
+4. If you want to, you can change the title (or message) in the consent flow by changing
+   the `consent_title` (or `consent_msg`) string.
+5. If you want to exclude certain libraries from the consent flow (e.g. the opt-in to the use of the
+   Advertising ID), then use the `setExcludedLibraries()` method of the `ConsentManager.Builder`.
+   For example, for Firebase Analytics: `.setExcludedLibraries(new String[]{"firebase_analytics"})`.
+   You can see the identifiers of all currently managed libraries
+   through `consentManager.getManagedLibraries()`.
 
 You can check the example project in `app/` to see how the library is used.
 
