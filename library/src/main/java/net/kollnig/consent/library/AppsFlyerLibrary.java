@@ -28,14 +28,12 @@ public class AppsFlyerLibrary extends Library {
 
     // this method will be replaced by hook
     public static void originalStart(Object thiz, Context context, String string, Object object) {
-        throw new RuntimeException("Could not overwrite original Firebase method");
+        throw new RuntimeException("Could not overwrite original AppsFlyer method");
     }
 
     @Override
     public Library initialise(Context context) throws LibraryInteractionException {
         super.initialise(context);
-
-        //.method public final start(Landroid/content/Context;Ljava/lang/String;Lcom/appsflyer/attribution/AppsFlyerRequestListener;)V
 
         // AppsFlyerLib.getInstance().start(this);
         try {
@@ -64,8 +62,17 @@ public class AppsFlyerLibrary extends Library {
     }
 
     @Override
-    public void passConsentToLibrary(boolean consent) throws LibraryInteractionException {
-
+    public void passConsentToLibrary(boolean consent) {
+        try {
+            Object[] arglist = {};
+            Class abstractBaseClass = Class.forName(getBaseClass());
+            Method getInstance = abstractBaseClass.getMethod("getInstance");
+            Object instance = getInstance.invoke(null, arglist);
+            Method stop = abstractBaseClass.getMethod("stop", boolean.class, Context.class);
+            stop.invoke(instance, !consent, getContext());
+        } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 
     @NonNull
