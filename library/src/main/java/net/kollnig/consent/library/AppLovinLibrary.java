@@ -10,10 +10,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class AppLovinLibrary extends Library {
+    public static final String LIBRARY_IDENTIFIER = "applovin";
+
     @NonNull
     @Override
     public String getId() {
-        return "applovin";
+        return LIBRARY_IDENTIFIER;
     }
 
     @Override

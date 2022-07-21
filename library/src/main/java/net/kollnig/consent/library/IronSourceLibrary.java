@@ -8,10 +8,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class IronSourceLibrary extends Library {
+    public static final String LIBRARY_IDENTIFIER = "ironsource";
+
     @Override
     public @NonNull
     String getId() {
-        return "ironsource";
+        return LIBRARY_IDENTIFIER;
     }
 
     @Override

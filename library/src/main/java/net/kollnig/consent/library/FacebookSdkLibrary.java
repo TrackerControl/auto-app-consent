@@ -8,10 +8,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class FacebookSdkLibrary extends Library {
+    public static final String LIBRARY_IDENTIFIER = "facebook_sdk";
+
     @Override
     public @NonNull
     String getId() {
-        return "facebook_sdk";
+        return LIBRARY_IDENTIFIER;
     }
 
     @Override

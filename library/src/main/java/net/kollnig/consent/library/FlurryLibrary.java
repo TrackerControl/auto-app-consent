@@ -14,6 +14,13 @@ import lab.galaxy.yahfa.HookMain;
 
 public class FlurryLibrary extends Library {
     public static final String LIBRARY_IDENTIFIER = "flurry";
+
+    @NonNull
+    @Override
+    public String getId() {
+        return LIBRARY_IDENTIFIER;
+    }
+
     static final String TAG = "HOOKED";
 
     public static void replacementBuild(Object thiz, @NonNull Context var1, @NonNull String var2) {
@@ -62,12 +69,6 @@ public class FlurryLibrary extends Library {
     @Override
     public void passConsentToLibrary(boolean consent) {
         // do nothing
-    }
-
-    @NonNull
-    @Override
-    public String getId() {
-        return LIBRARY_IDENTIFIER;
     }
 
     @Override

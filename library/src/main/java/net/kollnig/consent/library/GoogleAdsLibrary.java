@@ -14,6 +14,13 @@ import lab.galaxy.yahfa.HookMain;
 
 public class GoogleAdsLibrary extends Library {
     public static final String LIBRARY_IDENTIFIER = "google_ads";
+
+    @NonNull
+    @Override
+    public String getId() {
+        return LIBRARY_IDENTIFIER;
+    }
+
     static final String TAG = "HOOKED";
 
     public static void replacementMethod(@NonNull Context context) {
@@ -102,12 +109,6 @@ public class GoogleAdsLibrary extends Library {
         }
 
         return this;
-    }
-
-    @NonNull
-    @Override
-    public String getId() {
-        return LIBRARY_IDENTIFIER;
     }
 
     @Override

@@ -18,31 +18,36 @@ import lab.galaxy.yahfa.HookMain;
 
 public class AdColonyLibrary extends Library {
     public static final String LIBRARY_IDENTIFIER = "adcolony";
-    static final String TAG = "HOOKED";
 
     public static boolean replacementInit(Context var0, Object var1, @NonNull String var2) {
         Log.d(TAG, "successfully hooked AdColony");
 
         if (!Boolean.TRUE.equals(ConsentManager.getInstance().hasConsent(LIBRARY_IDENTIFIER))) {
-            var1 = getAppOptions(false);
+            var1 = getAppOptions(var1, false);
         }
 
         return originalInit(var0, var1, var2);
     }
 
-    // this method will be replaced by hook
-    public static boolean originalInit(Context var0, Object var1, @NonNull String var2) {
-        throw new RuntimeException("Could not overwrite original AdColony method");
-    }
+    static final String TAG = "HOOKED";
 
     private @NonNull
-    static Object getAppOptions(boolean consent) {
+    static Object getAppOptions(Object options, boolean consent) {
         //AdColonyAppOptions options = new AdColonyAppOptions()
         //        .setPrivacyFrameworkRequired(AdColonyAppOptions.GDPR, true)
         //        .setPrivacyConsentString(AdColonyAppOptions.GDPR, consent);
         try {
+            // AdColony.getAppOptions();
+            if (options == null) {
+                Class<?> baseClass = Class.forName("com.adcolony.sdk.AdColony");
+                Method getAppOptions = baseClass.getMethod("getAppOptions");
+                options = getAppOptions.invoke(null);
+            }
+
             Class<?> optionsClass = getOptionsClass();
-            Object options = optionsClass.getConstructor().newInstance();
+            if (options == null) {
+                options = optionsClass.getConstructor().newInstance();
+            }
 
             String GDPR = (String) optionsClass.getDeclaredField("GDPR").get(null);
 
@@ -57,6 +62,17 @@ public class AdColonyLibrary extends Library {
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchFieldException e) {
             throw new RuntimeException("Failed to interact with AdColony SDK.");
         }
+    }
+
+    // this method will be replaced by hook
+    public static boolean originalInit(Context var0, Object var1, @NonNull String var2) {
+        throw new RuntimeException("Could not overwrite original AdColony method");
+    }
+
+    @NonNull
+    @Override
+    public String getId() {
+        return LIBRARY_IDENTIFIER;
     }
 
     @NonNull
@@ -125,7 +141,7 @@ public class AdColonyLibrary extends Library {
     public void passConsentToLibrary(boolean consent) throws LibraryInteractionException {
         Class<?> baseClass = findBaseClass();
         try {
-            Object options = getAppOptions(consent);
+            Object options = getAppOptions(null, consent);
 
             // AdColony.setAppOptions();
             Method setAppOptions = baseClass.getMethod("setAppOptions", options.getClass());
@@ -135,12 +151,6 @@ public class AdColonyLibrary extends Library {
                 | InvocationTargetException e) {
             throw new LibraryInteractionException("Could not save settings to AdColony.");
         }
-    }
-
-    @NonNull
-    @Override
-    public String getId() {
-        return LIBRARY_IDENTIFIER;
     }
 
     @Override

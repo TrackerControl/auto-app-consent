@@ -19,13 +19,14 @@ import lab.galaxy.yahfa.HookMain;
 
 public class InMobiLibrary extends Library {
     public static final String LIBRARY_IDENTIFIER = "inmobi";
-    static final String TAG = "HOOKED";
 
     public static void replacementInit(@NonNull final Context var0, @NonNull @Size(min = 32L, max = 36L) final String var1, @Nullable JSONObject var2, @Nullable final Object var3) {
         Log.d(TAG, "successfully hooked Inmobi");
 
         if (!Boolean.TRUE.equals(ConsentManager.getInstance().hasConsent(LIBRARY_IDENTIFIER))) {
-            var2 = new JSONObject();
+            if (var2 == null)
+                var2 = new JSONObject();
+
             try {
                 var2.put("gdpr_consent_available", false);
                 var2.put("gdpr", "1");
@@ -35,6 +36,14 @@ public class InMobiLibrary extends Library {
         }
 
         originalInit(var0, var1, var2, var3);
+    }
+
+    static final String TAG = "HOOKED";
+
+    @NonNull
+    @Override
+    public String getId() {
+        return LIBRARY_IDENTIFIER;
     }
 
     // this method will be replaced by hook
@@ -66,12 +75,6 @@ public class InMobiLibrary extends Library {
     @Override
     public void passConsentToLibrary(boolean consent) {
         // do nothing
-    }
-
-    @NonNull
-    @Override
-    public String getId() {
-        return LIBRARY_IDENTIFIER;
     }
 
     @Override

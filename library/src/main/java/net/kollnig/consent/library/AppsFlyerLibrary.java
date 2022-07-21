@@ -15,6 +15,13 @@ import lab.galaxy.yahfa.HookMain;
 
 public class AppsFlyerLibrary extends Library {
     public static final String LIBRARY_IDENTIFIER = "appsflyer";
+
+    @NonNull
+    @Override
+    public String getId() {
+        return LIBRARY_IDENTIFIER;
+    }
+
     static final String TAG = "HOOKED";
 
     public static void replacementStart(Object thiz, Context context, String string, Object object) {
@@ -71,12 +78,6 @@ public class AppsFlyerLibrary extends Library {
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
         }
-    }
-
-    @NonNull
-    @Override
-    public String getId() {
-        return LIBRARY_IDENTIFIER;
     }
 
     @Override

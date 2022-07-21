@@ -16,6 +16,13 @@ import lab.galaxy.yahfa.HookMain;
 
 public class VungleLibrary extends Library {
     public static final String LIBRARY_IDENTIFIER = "vungle";
+
+    @Override
+    public @NonNull
+    String getId() {
+        return LIBRARY_IDENTIFIER;
+    }
+
     static final String TAG = "HOOKED";
 
     public static void replacementInit(Object thiz, @NonNull final Object callback, boolean isReconfig) {
@@ -82,12 +89,6 @@ public class VungleLibrary extends Library {
         }
 
         return this;
-    }
-
-    @Override
-    public @NonNull
-    String getId() {
-        return LIBRARY_IDENTIFIER;
     }
 
     @Override

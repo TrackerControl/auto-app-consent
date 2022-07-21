@@ -10,10 +10,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class FirebaseAnalyticsLibrary extends Library {
+    public static final String LIBRARY_IDENTIFIER = "firebase_analytics";
+
     @Override
     public @NonNull
     String getId() {
-        return "firebase_analytics";
+        return LIBRARY_IDENTIFIER;
     }
 
     @Override
