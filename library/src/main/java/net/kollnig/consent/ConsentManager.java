@@ -196,7 +196,7 @@ public class ConsentManager {
                     if (isChecked) selectedItems.add(ids.get(i));
                     else selectedItems.remove(ids.get(i));
                 })
-                .setNeutralButton("Privacy Policy", null)
+                .setNeutralButton(R.string.privacy_policy, null)
                 .setCancelable(false)
                 .create();
 

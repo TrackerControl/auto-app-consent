@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="consent_title">Allow data collection, and reading and storing data on your phone?</string>
+    <string name="consent_title">Accept data collection, and reading and storing data on your phone?</string>
 
     <string name="firebase_analytics_consent_msg">This app would like to use Google Firebase Analytics to understand your interactions with the app.\n\nThis involves using cookies and similar technologies and sharing your personal data with Google.</string>
     <string name="facebook_sdk_consent_msg">This app would like to use the Facebook SDK to understand your interactions with the app.\n\nThis involves using cookies and similar technologies and sharing your personal data with Facebook/Meta.</string>
@@ -22,6 +22,7 @@
 
     <string name="yes">Accept</string>
     <string name="no">Refuse</string>
-    <string name="accept_all">Accept All</string>
-    <string name="accept_selected">Accept Selection</string>
+    <string name="accept_all">All</string>
+    <string name="accept_selected">Selected</string>
+    <string name="privacy_policy">Privacy Policy</string>
 </resources>
