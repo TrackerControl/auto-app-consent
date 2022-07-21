@@ -19,7 +19,7 @@ At the moment, this project automatically implements a consent flow if your app 
 - Google Ads
 - Facebook SDK
 - AppLovin
-- Flurry
+- Flurry (disabled SDK if lack of consent altogether)
 - InMobi
 - AppsFlyer
 - ironSource
