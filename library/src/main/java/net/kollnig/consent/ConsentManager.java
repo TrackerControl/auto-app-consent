@@ -16,6 +16,7 @@ import net.kollnig.consent.library.AppsFlyerLibrary;
 import net.kollnig.consent.library.FacebookSdkLibrary;
 import net.kollnig.consent.library.FirebaseAnalyticsLibrary;
 import net.kollnig.consent.library.GoogleAdsLibrary;
+import net.kollnig.consent.library.InmobiLibrary;
 import net.kollnig.consent.library.Library;
 import net.kollnig.consent.library.LibraryInteractionException;
 
@@ -42,7 +43,8 @@ public class ConsentManager {
             new AppLovinLibrary(),
             new AdvertisingIdLibrary(),
             new GoogleAdsLibrary(),
-            new AppsFlyerLibrary()
+            new AppsFlyerLibrary(),
+            new InmobiLibrary()
     };
 
     private ConsentManager(Context context,

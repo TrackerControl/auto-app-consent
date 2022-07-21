@@ -17,6 +17,7 @@ import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.inmobi.sdk.InMobiSdk;
 
 import net.kollnig.consent.ConsentManager;
 
@@ -47,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
         FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         AppsFlyerLib.getInstance().start(this);
+
+        InMobiSdk.init(this, "ACCOUNT_ID_ABCDEFGHIJKLMNOPQRSTUVW");
 
         // Log some event
         Bundle bundle = new Bundle();

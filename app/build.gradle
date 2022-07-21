@@ -51,7 +51,7 @@ dependencies {
 
     implementation 'com.applovin:applovin-sdk:11.4.4'
 
-    //implementation 'com.inmobi.monetization:inmobi-ads:10.0.8'
+    implementation 'com.inmobi.monetization:inmobi-ads:10.0.8'
 
     //implementation 'com.flurry.android:analytics:13.3.0'
 
