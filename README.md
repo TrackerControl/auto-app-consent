@@ -74,7 +74,7 @@ You can check the example project in `app/` to see how the library is used.
 
 ## Details
 
-This tool interacts with third-party libraries in three ways: 1) by setting options in the `AndroidManifest.xml` file, 2) by calling functions of the third-party library directly, 3) by intercepting method calls to the third-party library and either adding more privacy-preserving options or preventing the call to that function altogether.
+This tool interacts with third-party libraries in three ways: 1) by setting options in the `AndroidManifest.xml` file, 2) by calling functions of the third-party library directly (through Reflection), 3) by intercepting method calls to the third-party library and either adding more privacy-preserving options or preventing the call to that function altogether.
 
 The third method is the most invasive and only taken when no alternatives are available. It relies on [YAHFA](https://github.com/PAGalaxyLab/YAHFA) (Yet Another Hook Framework for ART) to hook functions of third-party libraries. Since YAHFA is only compatible with Android 7–12, lower Android versions are not supported by the library. This might be addressed in future versions of this library.
 
