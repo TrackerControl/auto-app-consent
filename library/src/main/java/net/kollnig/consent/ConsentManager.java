@@ -71,13 +71,18 @@ public class ConsentManager {
     private static ConsentManager getInstance(Context context,
                                               Boolean showConsent,
                                               Uri privacyPolicy,
-                                              String[] excludeLibraries) {
+                                              String[] excludeLibraries,
+                                              Library[] customLibraries) {
         if (mConsentManager == null) {
             mConsentManager = new ConsentManager(context, showConsent, privacyPolicy, excludeLibraries);
 
             mConsentManager.libraries = new LinkedList<>();
             try {
-                for (Library library : mConsentManager.availableLibraries) {
+                // merge `availableLibraries` and `customLibraries` into `allLibraries`
+                List<Library> allLibraries = new LinkedList<>(Arrays.asList(mConsentManager.availableLibraries));
+                allLibraries.addAll(Arrays.asList(customLibraries));
+
+                for (Library library : allLibraries) {
                     if (!library.isPresent() ||
                             Arrays.asList(mConsentManager.excludedLibraries).contains(library.getId()))
                         continue;
@@ -225,9 +230,16 @@ public class ConsentManager {
         boolean showConsent = true;
         Uri privacyPolicy = null;
         String[] excludedLibraries = {};
+        Library[] customLibraries = {};
 
         public Builder(Context context) {
             this.context = context;
+        }
+
+        public Builder setCustomLibraries(Library[] customLibraries) {
+            this.customLibraries = customLibraries;
+
+            return this;
         }
 
         public Builder setShowConsent(boolean showConsent) {
@@ -252,7 +264,7 @@ public class ConsentManager {
             if (privacyPolicy == null)
                 throw new RuntimeException("No privacy policy provided.");
 
-            return ConsentManager.getInstance(context, showConsent, privacyPolicy, excludedLibraries);
+            return ConsentManager.getInstance(context, showConsent, privacyPolicy, excludedLibraries, customLibraries);
         }
     }
 }

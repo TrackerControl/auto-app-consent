@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
                         .setShowConsent(true)
                         .setPrivacyPolicy(Uri.parse("http://www.example.org/privacy"))
                         //.setExcludedLibraries(new String[]{"firebase_analytics"})
+                        //.setCustomLibraries(new Library[]{new CustomLibrary()})
                         .build();
 
         //consentManager.clearConsent();
