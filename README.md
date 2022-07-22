@@ -2,7 +2,7 @@
 
 *Developed by Konrad Kollnig, Department of Computer Science, University of Oxford*
 
-This repository shall help *app developers* implement consent in apps correctly. This helps
+This repository shall help *app developers* implement consent in apps more easily. This helps
 compliance with the GDPR, CCPA and other legal regimes. The motivation for this project that [our research at Oxford](https://www.usenix.org/conference/soups2021/presentation/kollnig) found that less than 4% of Android apps implement any form of consent. It puts our previous compliance guide from the website <https://gdpr4devs.com> into code.
 
 Specifically, this tool targets the following common compliance problems:
