@@ -94,6 +94,8 @@ library.
 
 The following gives more details on how this tool interacts with third-party libraries.
 
+*Note that the use of Google and Facebook services in the EU is [likely illegal even with user consent](https://noyb.eu/en/austrian-dsb-eu-us-data-transfers-google-analytics-illegal), because data is sent to the US and can be used for unlawful surveillance of EU citizens. The same applies to other US-based services.*
+
 ### Google Firebase Analytics
 
 **Purpose:** Analytics
