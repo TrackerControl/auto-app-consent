@@ -77,7 +77,9 @@ ConsentManager consentManager =
 
 You can check the example project in `app/` to see how the library is used.
 
-## Details
+## Implementation Details
+
+### General Approach
 
 This tool interacts with third-party libraries in three ways: 1) by setting options in
 the `AndroidManifest.xml` file, 2) by calling functions of the third-party library directly (through
