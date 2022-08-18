@@ -168,6 +168,7 @@ public class ConsentManager {
     public void askConsent() {
         List<String> ids = new LinkedList<>();
         List<String> names = new LinkedList<>();
+        List<String> selectedItems = new LinkedList<>();
 
         for (Library library : libraries) {
             if (library.isPresent()) {
@@ -182,21 +183,10 @@ public class ConsentManager {
         if (ids.size() == 0)
             return;
 
-        List<String> selectedItems = new LinkedList<>();
         final AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle(R.string.consent_title)
-                .setPositiveButton(R.string.accept_all, (dialog, which) -> {
-                    for (Library library: libraries) {
-                        String libraryId = library.getId();
-
-                        if (!ids.contains(libraryId))
-                            continue;
-
-                        saveConsent(libraryId, true);
-                    }
-                })
-                .setNegativeButton(R.string.accept_selected, (dialog, which) -> {
-                    for (Library library: libraries) {
+                .setPositiveButton(R.string.accept_selected, (dialog, which) -> {
+                    for (Library library : libraries) {
                         String libraryId = library.getId();
 
                         if (!ids.contains(libraryId))
@@ -205,6 +195,16 @@ public class ConsentManager {
                         saveConsent(libraryId, selectedItems.contains(libraryId));
                     }
                 })
+                /*.setNegativeButton(R.string.no, (dialog, which) -> {
+                    for (Library library: libraries) {
+                        String libraryId = library.getId();
+
+                        if (!ids.contains(libraryId))
+                            continue;
+
+                        saveConsent(libraryId, false);
+                    }
+                })*/
                 .setMultiChoiceItems(names.toArray(new String[0]), null, (dialog, i, isChecked) -> {
                     if (isChecked) selectedItems.add(ids.get(i));
                     else selectedItems.remove(ids.get(i));

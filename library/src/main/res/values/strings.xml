@@ -31,6 +31,8 @@
     <string name="yes">Accept</string>
     <string name="no">Refuse</string>
     <string name="accept_all">All</string>
-    <string name="accept_selected">Selected</string>
+    <string name="accept_selected">Accept Selected</string>
     <string name="privacy_policy">Privacy Policy</string>
+    <string name="accept">Accept</string>
+    <string name="reject_all">Reject all</string>
 </resources>

@@ -54,7 +54,7 @@ allprojects {
 2. Add the library:
 ```gradle
 dependencies {
-        implementation 'com.github.kasnder:app-consent-android:0.7'
+        implementation 'com.github.kasnder:app-consent-android:0.8'
 }
 ```
 3. Initialise the library by calling
