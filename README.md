@@ -1,4 +1,4 @@
-# App Consent (Alpha release, not for production)
+# Auto App Consent (Alpha release, not for production)
 
 *Developed by Konrad Kollnig, Department of Computer Science, University of Oxford*
 
