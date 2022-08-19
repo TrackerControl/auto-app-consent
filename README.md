@@ -1,4 +1,4 @@
-# Auto App Consent (Alpha release, not for production)
+# Auto App Consent for App Developers (Alpha release)
 
 *Developed by Konrad Kollnig, Department of Computer Science, University of Oxford*
 
@@ -40,7 +40,7 @@ At the moment, this project automatically implements a consent flow if your app 
 
 ## Installation
 
-**NOTE THAT THE USE OF THIS TOOL COMES AT YOUR OWN RISK. THIS TOOL CANNOT REPLACE AND DOES NOT PROVIDE *EXPERT LEGAL ADVICE*.**
+**NOTE THAT THE USE OF THIS TOOL COMES AT YOUR OWN RISK. THIS TOOL CANNOT REPLACE AND DOES NOT PROVIDE *EXPERT LEGAL ADVICE*. IT IS CURRENTLY NOT MEANT FOR PRODUCTION USE, BEING AN ALPHA RELEASE.**
 
 1. Add the JitPack repo:
 ```gradle
