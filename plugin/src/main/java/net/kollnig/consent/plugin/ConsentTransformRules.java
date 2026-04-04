@@ -28,7 +28,9 @@ public class ConsentTransformRules {
         /** Return early (void) or return default value if no consent */
         BLOCK,
         /** Throw IOException if no consent (for AdvertisingIdClient) */
-        THROW_IO_EXCEPTION
+        THROW_IO_EXCEPTION,
+        /** Inject Sec-GPC: 1 header into HTTP request builder (for GPC) */
+        INJECT_GPC_HEADER
     }
 
     public static class Rule {
@@ -95,6 +97,14 @@ public class ConsentTransformRules {
         addRule("com/vungle/warren/Vungle", "init",
                 "(Ljava/lang/String;Landroid/content/Context;Lcom/vungle/warren/InitCallback;)V",
                 "vungle", Action.BLOCK);
+
+        // ---- GPC header injection ----
+        // Inject Sec-GPC: 1 into OkHttp requests. Most ad SDKs bundle OkHttp,
+        // so transforming Request.Builder.build() catches their HTTP traffic.
+        // The header is added before TLS, so cert pinning is irrelevant.
+        addRule("okhttp3/Request$Builder", "build",
+                "()Lokhttp3/Request;",
+                "_gpc", Action.INJECT_GPC_HEADER);
     }
 
     private static void addRule(String className, String methodName, String methodDesc,

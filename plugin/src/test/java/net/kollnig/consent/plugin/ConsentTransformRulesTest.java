@@ -141,6 +141,22 @@ public class ConsentTransformRulesTest {
     }
 
     @Test
+    public void hasRulesForOkHttpRequestBuilder() {
+        assertTrue(ConsentTransformRules.hasRulesForClass(
+                "okhttp3/Request$Builder"));
+    }
+
+    @Test
+    public void findRuleForOkHttpBuild_gpcAction() {
+        ConsentTransformRules.Rule rule = ConsentTransformRules.findRule(
+                "okhttp3/Request$Builder",
+                "build",
+                "()Lokhttp3/Request;");
+        assertNotNull(rule);
+        assertEquals(ConsentTransformRules.Action.INJECT_GPC_HEADER, rule.action);
+    }
+
+    @Test
     public void allRulesHaveNonEmptyLibraryId() {
         String[] classes = {
                 "com/google/android/gms/ads/MobileAds",
@@ -150,7 +166,8 @@ public class ConsentTransformRulesTest {
                 "com/flurry/android/FlurryAgent$Builder",
                 "com/inmobi/sdk/InMobiSdk",
                 "com/adcolony/sdk/AdColony",
-                "com/vungle/warren/Vungle"
+                "com/vungle/warren/Vungle",
+                "okhttp3/Request$Builder"
         };
 
         for (String cls : classes) {
