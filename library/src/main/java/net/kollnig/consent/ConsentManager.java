@@ -25,6 +25,7 @@ import net.kollnig.consent.library.Library;
 import net.kollnig.consent.library.LibraryInteractionException;
 import net.kollnig.consent.library.VungleLibrary;
 import net.kollnig.consent.standards.GpcInterceptor;
+import net.kollnig.consent.standards.GpcNetworkInterceptor;
 import net.kollnig.consent.standards.TcfConsentManager;
 import net.kollnig.consent.standards.UsPrivacyManager;
 
@@ -98,6 +99,9 @@ public class ConsentManager {
         }
         if (enableGpc) {
             GpcInterceptor.setEnabled(true);
+            // Install network-level hooks so ALL HTTP requests from ALL SDKs
+            // get the Sec-GPC: 1 header — not just requests we explicitly control
+            GpcNetworkInterceptor.install(context);
         }
     }
 
