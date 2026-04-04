@@ -25,6 +25,7 @@ import net.kollnig.consent.library.Library;
 import net.kollnig.consent.library.LibraryInteractionException;
 import net.kollnig.consent.library.VungleLibrary;
 import net.kollnig.consent.standards.GpcInterceptor;
+import net.kollnig.consent.standards.GpcUrlHandler;
 import net.kollnig.consent.standards.TcfConsentManager;
 import net.kollnig.consent.standards.UsPrivacyManager;
 
@@ -97,11 +98,13 @@ public class ConsentManager {
             this.usPrivacyManager = new UsPrivacyManager(context);
         }
         if (enableGpc) {
-            // GPC applies to WebViews (via GpcWebViewClient) and the app's own
-            // HTTP requests (via GpcInterceptor.applyTo()). It cannot be injected
-            // into third-party SDK HTTPS traffic — for that, TCF and US Privacy
-            // SharedPreferences signals are the correct mechanism.
             GpcInterceptor.setEnabled(true);
+
+            // Install GPC for HttpURLConnection-based traffic.
+            // Uses Java's URLStreamHandlerFactory API (stable, no hooking).
+            // OkHttp/Cronet traffic is covered by the build-time bytecode
+            // transform plugin. WebViews are covered by GpcWebViewClient.
+            GpcUrlHandler.install();
         }
     }
 
