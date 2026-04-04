@@ -1,4 +1,6 @@
 pluginManagement {
+    // Include the local plugin module so it can be resolved by id
+    includeBuild('plugin')
     repositories {
         gradlePluginPortal()
         google()

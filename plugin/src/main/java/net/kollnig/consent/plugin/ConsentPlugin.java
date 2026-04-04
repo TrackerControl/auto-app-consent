@@ -1,0 +1,43 @@
+package net.kollnig.consent.plugin;
+
+import com.android.build.api.instrumentation.InstrumentationScope;
+import com.android.build.api.variant.AndroidComponentsExtension;
+
+import org.gradle.api.Plugin;
+import org.gradle.api.Project;
+
+/**
+ * Gradle plugin that transforms third-party SDK bytecode at build time
+ * to inject consent checks.
+ *
+ * This eliminates the need for runtime method hooking (YAHFA/LSPlant).
+ * The consent checks are baked into the APK during compilation, which means:
+ * - Works on ALL Android versions (no ART dependency)
+ * - No Play Protect flags
+ * - No OEM compatibility issues
+ * - No JIT/inlining breakage
+ *
+ * Usage in app/build.gradle:
+ *   plugins {
+ *       id 'net.kollnig.consent.plugin'
+ *   }
+ */
+public class ConsentPlugin implements Plugin<Project> {
+
+    @Override
+    public void apply(Project project) {
+        // Register the bytecode transformation with the Android Gradle Plugin
+        AndroidComponentsExtension androidComponents = project.getExtensions()
+                .getByType(AndroidComponentsExtension.class);
+
+        androidComponents.onVariants(androidComponents.selector().all(), variant -> {
+            variant.transformClassesWith(
+                    ConsentClassVisitorFactory.class,
+                    InstrumentationScope.ALL  // Transform all classes including dependencies
+            );
+            variant.setAsmFramesComputationMode(
+                    com.android.build.api.instrumentation.FramesComputationMode.COMPUTE_FRAMES_FOR_INSTRUMENTED_METHODS
+            );
+        });
+    }
+}
