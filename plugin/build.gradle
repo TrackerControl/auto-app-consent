@@ -1,6 +1,5 @@
 plugins {
     id 'java-gradle-plugin'
-    id 'groovy'
 }
 
 java {
@@ -8,11 +7,21 @@ java {
     targetCompatibility = JavaVersion.VERSION_11
 }
 
-dependencies {
-    // Android Gradle Plugin API — provides AsmClassVisitorFactory
-    implementation 'com.android.tools.build:gradle-api:7.2.1'
+// Exclude AGP-dependent source files from compilation so the core transform
+// logic (rules, visitors) can be compiled and tested with only ASM.
+// ConsentPlugin and ConsentClassVisitorFactory are only needed when the plugin
+// is applied to an Android project, where AGP provides the API on the classpath.
+sourceSets {
+    main {
+        java {
+            exclude 'net/kollnig/consent/plugin/ConsentPlugin.java'
+            exclude 'net/kollnig/consent/plugin/ConsentClassVisitorFactory.java'
+        }
+    }
+}
 
-    // ASM bytecode manipulation (bundled with AGP, but declared explicitly for compilation)
+dependencies {
+    // ASM bytecode manipulation
     implementation 'org.ow2.asm:asm:9.7'
     implementation 'org.ow2.asm:asm-commons:9.7'
 

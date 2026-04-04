@@ -7,15 +7,15 @@ on:
 
 jobs:
   plugin-tests:
-    name: Plugin Unit Tests
+    name: Plugin Unit Tests (bytecode transforms)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK 11
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '11'
+          java-version: '17'
           distribution: 'temurin'
 
       - name: Cache Gradle packages
@@ -31,7 +31,17 @@ jobs:
         working-directory: plugin
         run: ../gradlew test --no-daemon
 
-      - name: Upload plugin test results
+      - name: Verify all SDK signatures have tests
+        working-directory: plugin
+        run: |
+          RULE_COUNT=$(grep -c 'addRule(' src/main/java/net/kollnig/consent/plugin/ConsentTransformRules.java)
+          TEST_COUNT=$(grep -c 'realSignature_' src/test/java/net/kollnig/consent/plugin/ConsentMethodVisitorTest.java)
+          echo "Transform rules: $RULE_COUNT, Signature tests: $TEST_COUNT"
+          if [ "$TEST_COUNT" -lt "$RULE_COUNT" ]; then
+            echo "::warning::Not all SDK rules have signature verification tests ($TEST_COUNT < $RULE_COUNT)"
+          fi
+
+      - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -39,15 +49,15 @@ jobs:
           path: plugin/build/reports/tests/
 
   library-tests:
-    name: Library Unit Tests
+    name: Library Unit Tests (TCF, US Privacy, GPC)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK 11
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '11'
+          java-version: '17'
           distribution: 'temurin'
 
       - name: Cache Gradle packages
@@ -62,53 +72,9 @@ jobs:
       - name: Run library unit tests
         run: ./gradlew :library:testDebugUnitTest --no-daemon
 
-      - name: Upload library test results
+      - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: library-test-results
           path: library/build/reports/tests/
-
-  bytecode-transform-verification:
-    name: Verify Bytecode Transforms
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up JDK 11
-        uses: actions/setup-java@v4
-        with:
-          java-version: '11'
-          distribution: 'temurin'
-
-      - name: Cache Gradle packages
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-verify-${{ hashFiles('plugin/**') }}
-          restore-keys: ${{ runner.os }}-gradle-verify-
-
-      - name: Build plugin
-        working-directory: plugin
-        run: ../gradlew build --no-daemon
-
-      - name: Run bytecode verification tests
-        working-directory: plugin
-        run: ../gradlew test --tests "*ConsentMethodVisitorTest.realSignature*" --no-daemon
-
-      - name: Verify all SDK signatures have tests
-        working-directory: plugin
-        run: |
-          echo "Checking that every rule in ConsentTransformRules has a corresponding test..."
-          # Count rules (addRule calls)
-          RULE_COUNT=$(grep -c 'addRule(' src/main/java/net/kollnig/consent/plugin/ConsentTransformRules.java)
-          # Count realSignature tests
-          TEST_COUNT=$(grep -c 'realSignature_' src/test/java/net/kollnig/consent/plugin/ConsentMethodVisitorTest.java)
-          echo "Rules: $RULE_COUNT, Signature tests: $TEST_COUNT"
-          if [ "$TEST_COUNT" -lt "$RULE_COUNT" ]; then
-            echo "WARNING: Not all SDK rules have signature verification tests ($TEST_COUNT tests < $RULE_COUNT rules)"
-            echo "Missing tests may mean bytecode transforms are not verified for some SDKs"
-            # Not failing for now — some rules share tests (e.g., two initialize overloads)
-          fi
