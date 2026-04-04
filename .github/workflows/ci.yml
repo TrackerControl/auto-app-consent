@@ -9,6 +9,9 @@ jobs:
   plugin-tests:
     name: Plugin Unit Tests (bytecode transforms)
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: plugin
     steps:
       - uses: actions/checkout@v4
 
@@ -28,11 +31,9 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle-plugin-
 
       - name: Run plugin tests
-        working-directory: plugin
-        run: ../gradlew test --no-daemon
+        run: ./gradlew test --no-daemon
 
       - name: Verify all SDK signatures have tests
-        working-directory: plugin
         run: |
           RULE_COUNT=$(grep -c 'addRule(' src/main/java/net/kollnig/consent/plugin/ConsentTransformRules.java)
           TEST_COUNT=$(grep -c 'realSignature_' src/test/java/net/kollnig/consent/plugin/ConsentMethodVisitorTest.java)
