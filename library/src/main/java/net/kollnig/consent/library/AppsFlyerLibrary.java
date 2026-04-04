@@ -11,8 +11,6 @@ import net.kollnig.consent.R;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import lab.galaxy.yahfa.HookMain;
-
 public class AppsFlyerLibrary extends Library {
     public static final String LIBRARY_IDENTIFIER = "appsflyer";
 
@@ -30,37 +28,38 @@ public class AppsFlyerLibrary extends Library {
         if (!Boolean.TRUE.equals(ConsentManager.getInstance().hasConsent(LIBRARY_IDENTIFIER)))
             return;
 
-        originalStart(thiz, context, string, object);
+        try {
+            HookCompat.callOriginal(
+                    AppsFlyerLibrary.class, "originalStart",
+                    new Class[]{Object.class, Context.class, String.class, Object.class},
+                    thiz, context, string, object);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to call original AppsFlyer start", e);
+        }
     }
 
-    // this method will be replaced by hook
+    // stub — used as key for HookCompat backup registration
     public static void originalStart(Object thiz, Context context, String string, Object object) {
-        throw new RuntimeException("Could not overwrite original AppsFlyer method");
+        throw new RuntimeException("Hook not installed for AppsFlyer start");
     }
 
     @Override
     public Library initialise(Context context) throws LibraryInteractionException {
         super.initialise(context);
 
-        // AppsFlyerLib.getInstance().start(this);
         try {
             Class<?> abstractBaseClass = findBaseClass();
             Method getInstance = abstractBaseClass.getMethod("getInstance");
             Object instance = getInstance.invoke(null);
 
             Class<?> baseClass = instance.getClass();
-            String methodName = "start";
-            String methodSig = "(Landroid/content/Context;Ljava/lang/String;Lcom/appsflyer/attribution/AppsFlyerRequestListener;)V";
+            Class<?> listenerClass = Class.forName("com.appsflyer.attribution.AppsFlyerRequestListener");
 
-            try {
-                Method methodOrig = (Method) HookMain.findMethodNative(baseClass, methodName, methodSig);
-                Method methodHook = AppsFlyerLibrary.class.getMethod("replacementStart", Object.class, Context.class, String.class, Object.class);
-                Method methodBackup = AppsFlyerLibrary.class.getMethod("originalStart", Object.class, Context.class, String.class, Object.class);
-                HookMain.backupAndHook(methodOrig, methodHook, methodBackup);
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException("Could not overwrite method");
-            }
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            Method methodOrig = baseClass.getMethod("start", Context.class, String.class, listenerClass);
+            Method methodHook = AppsFlyerLibrary.class.getMethod("replacementStart", Object.class, Context.class, String.class, Object.class);
+            Method methodBackup = AppsFlyerLibrary.class.getMethod("originalStart", Object.class, Context.class, String.class, Object.class);
+            HookCompat.backupAndHook(methodOrig, methodHook, methodBackup);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | ClassNotFoundException e) {
             e.printStackTrace();
         }
 

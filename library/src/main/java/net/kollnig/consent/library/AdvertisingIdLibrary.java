@@ -11,8 +11,6 @@ import net.kollnig.consent.R;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
-import lab.galaxy.yahfa.HookMain;
-
 public class AdvertisingIdLibrary extends Library {
     public static final String LIBRARY_IDENTIFIER = "google_ads_identifier";
 
@@ -30,12 +28,18 @@ public class AdvertisingIdLibrary extends Library {
         if (!Boolean.TRUE.equals(ConsentManager.getInstance().hasConsent(LIBRARY_IDENTIFIER)))
             throw new IOException("Blocked attempt to access Advertising Identifier without consent.");
 
-        return originalMethod(context);
+        try {
+            return HookCompat.callOriginal(
+                    AdvertisingIdLibrary.class, "originalMethod",
+                    new Class[]{Context.class}, null, context);
+        } catch (Exception e) {
+            throw new IOException("Failed to call original getAdvertisingIdInfo", e);
+        }
     }
 
-    // this method will be replaced by hook
+    // stub — used as key for HookCompat backup registration
     public static Object originalMethod(@NonNull Context context) {
-        throw new RuntimeException("Could not overwrite original Firebase method");
+        throw new RuntimeException("Hook not installed for getAdvertisingIdInfo");
     }
 
     @Override
@@ -43,16 +47,13 @@ public class AdvertisingIdLibrary extends Library {
         super.initialise(context);
 
         Class<?> advertisingIdClass = findBaseClass();
-        String methodName = "getAdvertisingIdInfo";
-        String methodSig = "(Landroid/content/Context;)Lcom/google/android/gms/ads/identifier/AdvertisingIdClient$Info;";
-
         try {
-            Method methodOrig = (Method) HookMain.findMethodNative(advertisingIdClass, methodName, methodSig);
+            Method methodOrig = advertisingIdClass.getMethod("getAdvertisingIdInfo", Context.class);
             Method methodHook = AdvertisingIdLibrary.class.getMethod("replacementMethod", Context.class);
             Method methodBackup = AdvertisingIdLibrary.class.getMethod("originalMethod", Context.class);
-            HookMain.backupAndHook(methodOrig, methodHook, methodBackup);
+            HookCompat.backupAndHook(methodOrig, methodHook, methodBackup);
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException("Could not overwrite method");
+            throw new RuntimeException("Could not find method to hook", e);
         }
 
         return this;

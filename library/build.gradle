@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    compileSdk 32
+    compileSdk 35
 
     defaultConfig {
         minSdk 24
-        targetSdk 32
+        targetSdk 35
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -26,9 +26,9 @@ android {
 }
 
 dependencies {
-    implementation 'io.github.pagalaxylab:yahfa:0.10.0'
-
-    //implementation "org.lsposed.lsplant:lsplant:4.1"
+    // LSPlant: modern ART hooking framework (Android 5.0+, actively maintained)
+    // Replaces YAHFA which only supported Android 7-12
+    implementation "org.lsposed.lsplant:lsplant:6.3"
 
     implementation 'androidx.appcompat:appcompat:1.4.2'
     implementation 'com.google.android.material:material:1.6.1'

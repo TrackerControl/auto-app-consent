@@ -14,8 +14,6 @@ import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.List;
 
-import lab.galaxy.yahfa.HookMain;
-
 public class AdColonyLibrary extends Library {
     public static final String LIBRARY_IDENTIFIER = "adcolony";
 
@@ -26,18 +24,22 @@ public class AdColonyLibrary extends Library {
             var1 = getAppOptions(var1, false);
         }
 
-        return originalInit(var0, var1, var2);
+        try {
+            return (boolean) HookCompat.callOriginal(
+                    AdColonyLibrary.class, "originalInit",
+                    new Class[]{Context.class, Object.class, String.class},
+                    null, var0, var1, var2);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to call original AdColony configure", e);
+            return false;
+        }
     }
 
     static final String TAG = "HOOKED";
 
     private @NonNull
     static Object getAppOptions(Object options, boolean consent) {
-        //AdColonyAppOptions options = new AdColonyAppOptions()
-        //        .setPrivacyFrameworkRequired(AdColonyAppOptions.GDPR, true)
-        //        .setPrivacyConsentString(AdColonyAppOptions.GDPR, consent);
         try {
-            // AdColony.getAppOptions();
             if (options == null) {
                 Class<?> baseClass = Class.forName("com.adcolony.sdk.AdColony");
                 Method getAppOptions = baseClass.getMethod("getAppOptions");
@@ -64,9 +66,9 @@ public class AdColonyLibrary extends Library {
         }
     }
 
-    // this method will be replaced by hook
+    // stub — used as key for HookCompat backup registration
     public static boolean originalInit(Context var0, Object var1, @NonNull String var2) {
-        throw new RuntimeException("Could not overwrite original AdColony method");
+        throw new RuntimeException("Hook not installed for AdColony configure");
     }
 
     @NonNull
@@ -80,8 +82,6 @@ public class AdColonyLibrary extends Library {
         return Class.forName("com.adcolony.sdk.AdColonyAppOptions");
     }
 
-    // AdColony.configure()
-    // a(Context var0, AdColonyAppOptions var1, @NonNull String var2)
     private static Method findInitMethod() throws LibraryInteractionException {
         List<Method> matchingMethods = new LinkedList<>();
         try {
@@ -118,20 +118,13 @@ public class AdColonyLibrary extends Library {
     public Library initialise(Context context) throws LibraryInteractionException {
         super.initialise(context);
 
-        // AdColony.configure()
-        // a(Context var0, AdColonyAppOptions var1, @NonNull String var2)
-        // a(Landroid/content/Context;Lcom/adcolony/sdk/AdColonyAppOptions;Ljava/lang/String;)Z
-        Class<?> baseClass = findBaseClass();
-        String methodName = findInitMethod().getName();
-        String methodSig = "(Landroid/content/Context;Lcom/adcolony/sdk/AdColonyAppOptions;Ljava/lang/String;)Z";
-
+        Method methodOrig = findInitMethod();
         try {
-            Method methodOrig = (Method) HookMain.findMethodNative(baseClass, methodName, methodSig);
             Method methodHook = AdColonyLibrary.class.getMethod("replacementInit", Context.class, Object.class, String.class);
             Method methodBackup = AdColonyLibrary.class.getMethod("originalInit", Context.class, Object.class, String.class);
-            HookMain.backupAndHook(methodOrig, methodHook, methodBackup);
+            HookCompat.backupAndHook(methodOrig, methodHook, methodBackup);
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException("Could not overwrite method");
+            throw new RuntimeException("Could not find method to hook", e);
         }
 
         return this;
@@ -143,7 +136,6 @@ public class AdColonyLibrary extends Library {
         try {
             Object options = getAppOptions(null, consent);
 
-            // AdColony.setAppOptions();
             Method setAppOptions = baseClass.getMethod("setAppOptions", options.getClass());
             setAppOptions.invoke(null, options);
         } catch (NoSuchMethodException

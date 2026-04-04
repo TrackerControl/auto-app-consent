@@ -10,8 +10,6 @@ import net.kollnig.consent.R;
 
 import java.lang.reflect.Method;
 
-import lab.galaxy.yahfa.HookMain;
-
 public class FlurryLibrary extends Library {
     public static final String LIBRARY_IDENTIFIER = "flurry";
 
@@ -26,41 +24,36 @@ public class FlurryLibrary extends Library {
     public static void replacementBuild(Object thiz, @NonNull Context var1, @NonNull String var2) {
         Log.d(TAG, "successfully hooked Flurry");
 
-        if (!Boolean.TRUE.equals(ConsentManager.getInstance().hasConsent(LIBRARY_IDENTIFIER))) {
-            /*try {
-                Method withDataSaleOptOut = thiz.getClass().getMethod("withDataSaleOptOut", boolean.class);
-                withDataSaleOptOut.invoke(thiz, true);
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
-            }*/
-
+        if (!Boolean.TRUE.equals(ConsentManager.getInstance().hasConsent(LIBRARY_IDENTIFIER)))
             return;
-        }
 
-        originalBuild(thiz, var1, var2);
+        try {
+            HookCompat.callOriginal(
+                    FlurryLibrary.class, "originalBuild",
+                    new Class[]{Object.class, Context.class, String.class},
+                    thiz, var1, var2);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to call original Flurry build", e);
+        }
     }
 
-    // this method will be replaced by hook
+    // stub — used as key for HookCompat backup registration
     public static void originalBuild(Object thiz, @NonNull Context var1, @NonNull String var2) {
-        throw new RuntimeException("Could not overwrite original Flurry method");
+        throw new RuntimeException("Hook not installed for Flurry build");
     }
 
     @Override
     public Library initialise(Context context) throws LibraryInteractionException {
         super.initialise(context);
 
-        // build(Landroid/content/Context;Ljava/lang/String;)V
         Class<?> baseClass = findBaseClass();
-        String methodName = "build";
-        String methodSig = "(Landroid/content/Context;Ljava/lang/String;)V";
-
         try {
-            Method methodOrig = (Method) HookMain.findMethodNative(baseClass, methodName, methodSig);
+            Method methodOrig = baseClass.getMethod("build", Context.class, String.class);
             Method methodHook = FlurryLibrary.class.getMethod("replacementBuild", Object.class, Context.class, String.class);
             Method methodBackup = FlurryLibrary.class.getMethod("originalBuild", Object.class, Context.class, String.class);
-            HookMain.backupAndHook(methodOrig, methodHook, methodBackup);
+            HookCompat.backupAndHook(methodOrig, methodHook, methodBackup);
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException("Could not overwrite method");
+            throw new RuntimeException("Could not find method to hook", e);
         }
 
         return this;

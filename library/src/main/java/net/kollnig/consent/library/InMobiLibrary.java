@@ -15,8 +15,6 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Method;
 
-import lab.galaxy.yahfa.HookMain;
-
 public class InMobiLibrary extends Library {
     public static final String LIBRARY_IDENTIFIER = "inmobi";
 
@@ -35,7 +33,14 @@ public class InMobiLibrary extends Library {
             }
         }
 
-        originalInit(var0, var1, var2, var3);
+        try {
+            HookCompat.callOriginal(
+                    InMobiLibrary.class, "originalInit",
+                    new Class[]{Context.class, String.class, JSONObject.class, Object.class},
+                    null, var0, var1, var2, var3);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to call original InMobi init", e);
+        }
     }
 
     static final String TAG = "HOOKED";
@@ -46,27 +51,24 @@ public class InMobiLibrary extends Library {
         return LIBRARY_IDENTIFIER;
     }
 
-    // this method will be replaced by hook
+    // stub — used as key for HookCompat backup registration
     public static void originalInit(@NonNull final Context var0, @NonNull @Size(min = 32L, max = 36L) final String var1, @Nullable JSONObject var2, @Nullable final Object var3) {
-        throw new RuntimeException("Could not overwrite original Inmobi method");
+        throw new RuntimeException("Hook not installed for InMobi init");
     }
 
     @Override
     public Library initialise(Context context) throws LibraryInteractionException {
         super.initialise(context);
 
-        // InMobiSdk.init(this, "Insert InMobi Account ID here", consentObject, new SdkInitializationListener()
         Class<?> baseClass = findBaseClass();
-        String methodName = "init";
-        String methodSig = "(Landroid/content/Context;Ljava/lang/String;Lorg/json/JSONObject;Lcom/inmobi/sdk/SdkInitializationListener;)V";
-
         try {
-            Method methodOrig = (Method) HookMain.findMethodNative(baseClass, methodName, methodSig);
+            Class<?> listenerClass = Class.forName("com.inmobi.sdk.SdkInitializationListener");
+            Method methodOrig = baseClass.getMethod("init", Context.class, String.class, JSONObject.class, listenerClass);
             Method methodHook = InMobiLibrary.class.getMethod("replacementInit", Context.class, String.class, JSONObject.class, Object.class);
             Method methodBackup = InMobiLibrary.class.getMethod("originalInit", Context.class, String.class, JSONObject.class, Object.class);
-            HookMain.backupAndHook(methodOrig, methodHook, methodBackup);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException("Could not overwrite method");
+            HookCompat.backupAndHook(methodOrig, methodHook, methodBackup);
+        } catch (NoSuchMethodException | ClassNotFoundException e) {
+            throw new RuntimeException("Could not find method to hook", e);
         }
 
         return this;

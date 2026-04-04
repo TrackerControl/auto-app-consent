@@ -1,20 +1,28 @@
 package net.kollnig.consent.standards;
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
 
 /**
- * Adds Global Privacy Control (GPC) headers to HTTP requests.
+ * Global Privacy Control (GPC) signal management.
  *
- * GPC is a browser/HTTP signal (Sec-GPC: 1) that tells websites the user
- * does not want their personal data sold or shared. It is recognized under
- * CCPA, GDPR, and the Colorado Privacy Act.
+ * GPC is a web standard (Sec-GPC: 1 header + navigator.globalPrivacyControl)
+ * that tells websites the user does not want their personal data sold or shared.
+ * It is legally recognized under CCPA, GDPR, and the Colorado Privacy Act.
  *
- * This class provides utilities to apply the GPC header to:
- * - HttpURLConnection (standard Android HTTP)
- * - Any request via the header name/value constants
+ * IMPORTANT: GPC is a *browser/web* standard. It is designed for:
+ * - WebViews loading web content (use GpcWebViewClient)
+ * - The app's own HTTP requests to its backend (use applyTo())
  *
- * For OkHttp users, use GpcOkHttpInterceptor instead.
+ * GPC is NOT designed for in-app SDK traffic. Ad/analytics SDKs use their own
+ * consent mechanisms:
+ * - IAB TCF v2.2 strings in SharedPreferences (see TcfConsentManager)
+ * - IAB US Privacy strings in SharedPreferences (see UsPrivacyManager)
+ * - SDK-specific consent APIs (what the Library classes handle)
+ *
+ * Injecting GPC headers into SDK HTTPS traffic is not feasible because:
+ * - Most SDKs use HTTPS with certificate pinning
+ * - No proxy/MITM approach can modify pinned HTTPS headers
+ * - ART method hooking (YAHFA) is fragile and Android-version-limited
  *
  * See: https://globalprivacycontrol.github.io/gpc-spec/
  */
@@ -26,7 +34,9 @@ public class GpcInterceptor {
     private static volatile boolean enabled = false;
 
     /**
-     * Enable or disable GPC header injection globally.
+     * Enable or disable GPC globally.
+     * When enabled, GpcWebViewClient will inject GPC signals into WebViews,
+     * and applyTo() will add the header to HttpURLConnections.
      */
     public static void setEnabled(boolean gpcEnabled) {
         enabled = gpcEnabled;
@@ -40,11 +50,13 @@ public class GpcInterceptor {
     }
 
     /**
-     * Apply the GPC header to an HttpURLConnection if GPC is enabled.
+     * Apply the GPC header to an HttpURLConnection.
+     * Use this for the app's own HTTP requests to its backend server.
      *
-     * Call this before connecting:
-     *   GpcInterceptor.applyTo(connection);
-     *   connection.connect();
+     * Example:
+     *   HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+     *   GpcInterceptor.applyTo(conn);
+     *   conn.connect();
      */
     public static void applyTo(HttpURLConnection connection) {
         if (enabled) {

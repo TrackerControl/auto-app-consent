@@ -12,8 +12,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
-import lab.galaxy.yahfa.HookMain;
-
 public class VungleLibrary extends Library {
     public static final String LIBRARY_IDENTIFIER = "vungle";
 
@@ -28,7 +26,14 @@ public class VungleLibrary extends Library {
     public static void replacementInit(Object thiz, @NonNull final Object callback, boolean isReconfig) {
         Log.d(TAG, "successfully hooked Vungle");
 
-        originalInit(thiz, callback, isReconfig);
+        try {
+            HookCompat.callOriginal(
+                    VungleLibrary.class, "originalInit",
+                    new Class[]{Object.class, Object.class, boolean.class},
+                    thiz, callback, isReconfig);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to call original Vungle configure", e);
+        }
 
         boolean consent = Boolean.TRUE.equals(ConsentManager.getInstance().hasConsent(LIBRARY_IDENTIFIER));
         try {
@@ -38,9 +43,9 @@ public class VungleLibrary extends Library {
         }
     }
 
-    // this method will be replaced by hook
+    // stub — used as key for HookCompat backup registration
     public static void originalInit(Object thiz, @NonNull final Object callback, boolean isReconfig) {
-        throw new RuntimeException("Could not overwrite original Vungle method");
+        throw new RuntimeException("Hook not installed for Vungle configure");
     }
 
     private static void passConsent(boolean consent) throws LibraryInteractionException {
@@ -62,7 +67,6 @@ public class VungleLibrary extends Library {
             if (optIn == null || optOut == null)
                 throw new LibraryInteractionException("Could not retrieve consent objects.");
 
-            // public static void updateConsentStatus(@NonNull Consent status, @NonNull String consentMessageVersion)
             Method updateConsentStatus = baseClass.getMethod("updateConsentStatus", consentClass, String.class);
             updateConsentStatus.invoke(null, consent ? optIn : optOut, "1.0.0");
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassNotFoundException e) {
@@ -74,18 +78,16 @@ public class VungleLibrary extends Library {
     public Library initialise(Context context) throws LibraryInteractionException {
         super.initialise(context);
 
-        // private void configure(@NonNull final InitCallback callback, boolean isReconfig) {
         Class<?> baseClass = findBaseClass();
-        String methodName = "configure";
-        String methodSig = "(Lcom/vungle/warren/InitCallback;Z)V";
-
         try {
-            Method methodOrig = (Method) HookMain.findMethodNative(baseClass, methodName, methodSig);
+            Class<?> callbackClass = Class.forName("com.vungle.warren.InitCallback");
+            Method methodOrig = baseClass.getDeclaredMethod("configure", callbackClass, boolean.class);
+            methodOrig.setAccessible(true);
             Method methodHook = VungleLibrary.class.getMethod("replacementInit", Object.class, Object.class, boolean.class);
             Method methodBackup = VungleLibrary.class.getMethod("originalInit", Object.class, Object.class, boolean.class);
-            HookMain.backupAndHook(methodOrig, methodHook, methodBackup);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException("Could not overwrite method");
+            HookCompat.backupAndHook(methodOrig, methodHook, methodBackup);
+        } catch (NoSuchMethodException | ClassNotFoundException e) {
+            throw new RuntimeException("Could not find method to hook", e);
         }
 
         return this;
