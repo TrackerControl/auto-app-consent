@@ -6,14 +6,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.lsposed.lsplant.LSPlant;
+import top.canyie.pine.Pine;
+import top.canyie.pine.callback.MethodHook;
 
 /**
- * Hooking compatibility layer wrapping LSPlant.
+ * Hooking compatibility layer wrapping Pine.
  *
- * LSPlant supports Android 5.0 through 16+ and is actively maintained
- * by the LSPosed team. It handles JIT compilation, method inlining,
- * and OEM ART modifications — all things that broke YAHFA.
+ * Pine supports Android 5.0-14+ and provides a Java API for ART method hooking.
+ * Unlike LSPlant (pure native C++, no Java API) or YAHFA (Android 7-12 only,
+ * abandoned), Pine offers both broad version support and a usable Java interface.
  *
  * This class provides a YAHFA-compatible API so existing Library classes
  * need minimal changes: just replace HookMain calls with HookCompat calls.
@@ -23,61 +24,80 @@ public class HookCompat {
     private static final String TAG = "HookCompat";
     private static boolean initialized = false;
 
-    // Maps "ClassName#methodName#paramCount" -> LSPlant backup Method
-    private static final ConcurrentHashMap<String, Method> backups = new ConcurrentHashMap<>();
+    // Maps stub key -> hooked original method
+    private static final ConcurrentHashMap<String, Method> hookedMethods = new ConcurrentHashMap<>();
 
     /**
-     * Initialize LSPlant. Called automatically before first hook.
+     * Initialize Pine. Called automatically before first hook.
      */
     public static synchronized void init() {
         if (initialized) return;
-        LSPlant.init(HookCompat.class.getClassLoader());
+        Pine.ensureInitialized();
+        Pine.disableJitInline();
         initialized = true;
     }
 
     /**
-     * Hook a method, replacing it with hookMethod.
-     * The original can later be called via callOriginal().
+     * Hook a method: intercept calls to target, redirect to hook, allow
+     * calling the original via callOriginal().
      *
-     * This replaces YAHFA's backupAndHook() pattern.
+     * The hook method should check consent and then call
+     * HookCompat.callOriginal() to invoke the original if consent is granted.
      *
-     * @param target     the method to hook (found via reflection or findMethodNative)
+     * @param target     the method to hook
      * @param hook       the static replacement method
-     * @param backupStub the stub method (previously used by YAHFA; now used as key only)
+     * @param backupStub the stub method (used as key for callOriginal dispatch)
      */
     public static void backupAndHook(Method target, Method hook, Method backupStub) {
         init();
-        Method backup = LSPlant.hookMethod(target, hook);
-        if (backup == null) {
-            Log.e(TAG, "Failed to hook: " + target.getDeclaringClass().getName()
+        try {
+            String key = stubKey(backupStub);
+            hookedMethods.put(key, target);
+
+            // Hook the target method. Pine intercepts the call and lets us
+            // call the original via Pine.invokeOriginalMethod().
+            // The replacement logic is in the Library classes' static hook methods
+            // which are wired up by the caller.
+            Pine.hook(target, new MethodHook() {
+                @Override
+                public void beforeCall(Pine.CallFrame callFrame) throws Throwable {
+                    // Invoke the static hook method with the same arguments
+                    Object[] args = callFrame.getArgs();
+
+                    // Build argument list: for instance methods, Pine provides
+                    // thisObject separately; our hook methods expect it as first arg
+                    Object[] hookArgs;
+                    if (java.lang.reflect.Modifier.isStatic(target.getModifiers())) {
+                        hookArgs = args;
+                    } else {
+                        hookArgs = new Object[args.length + 1];
+                        hookArgs[0] = callFrame.thisObject;
+                        System.arraycopy(args, 0, hookArgs, 1, args.length);
+                    }
+
+                    Object result = hook.invoke(null, hookArgs);
+                    callFrame.setResult(result);
+                }
+            });
+
+            Log.d(TAG, "Hooked: " + target.getDeclaringClass().getName()
                     + "." + target.getName());
-            return;
+        } catch (Exception e) {
+            Log.e(TAG, "Hook failed for " + target.getName() + ": " + e.getMessage());
         }
-        backup.setAccessible(true);
-        String key = stubKey(backupStub);
-        backups.put(key, backup);
-        Log.d(TAG, "Hooked: " + target.getDeclaringClass().getName()
-                + "." + target.getName());
     }
 
     /**
      * Call the original (pre-hook) method.
-     * Use this from replacement methods instead of calling the old "originalXxx()" stubs.
-     *
-     * @param backupStub the same stub method passed to backupAndHook()
-     * @param thiz       instance (null for static methods)
-     * @param args       method arguments
-     * @return the return value
      */
     public static Object callOriginal(Method backupStub, Object thiz, Object... args)
             throws InvocationTargetException, IllegalAccessException {
         String key = stubKey(backupStub);
-        Method backup = backups.get(key);
-        if (backup == null) {
-            throw new RuntimeException("No backup registered for: " + key
-                    + ". Was backupAndHook() called?");
+        Method target = hookedMethods.get(key);
+        if (target == null) {
+            throw new RuntimeException("No hook registered for: " + key);
         }
-        return backup.invoke(thiz, args);
+        return Pine.invokeOriginalMethod(target, thiz, args);
     }
 
     /**
