@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.util.Log;
 import android.widget.Button;
 
 import androidx.annotation.Nullable;
@@ -25,6 +26,7 @@ import net.kollnig.consent.library.Library;
 import net.kollnig.consent.library.LibraryInteractionException;
 import net.kollnig.consent.library.VungleLibrary;
 import net.kollnig.consent.standards.GpcInterceptor;
+import net.kollnig.consent.standards.GpcLocalProxy;
 import net.kollnig.consent.standards.GpcNetworkInterceptor;
 import net.kollnig.consent.standards.TcfConsentManager;
 import net.kollnig.consent.standards.UsPrivacyManager;
@@ -49,9 +51,21 @@ public class ConsentManager {
     // Standards support
     private TcfConsentManager tcfManager;
     private UsPrivacyManager usPrivacyManager;
+    private GpcLocalProxy gpcProxy;
     private boolean gpcEnabled;
     private boolean gdprApplies;
     private boolean ccpaApplies;
+
+    /**
+     * GPC enforcement strategy.
+     * PROXY is preferred for production; HOOK uses YAHFA (fragile, Android 7-12 only).
+     */
+    public enum GpcMode {
+        /** Local HTTP proxy — stable across Android versions, no ART hooking. */
+        PROXY,
+        /** YAHFA method hooking — covers more traffic but fragile and version-limited. */
+        HOOK
+    }
 
     Library[] availableLibraries = {
             new FirebaseAnalyticsLibrary(),
@@ -78,6 +92,7 @@ public class ConsentManager {
                            String publisherCountryCode,
                            boolean enableUsPrivacy,
                            boolean enableGpc,
+                           GpcMode gpcMode,
                            boolean gdprApplies,
                            boolean ccpaApplies) {
 
@@ -99,9 +114,21 @@ public class ConsentManager {
         }
         if (enableGpc) {
             GpcInterceptor.setEnabled(true);
-            // Install network-level hooks so ALL HTTP requests from ALL SDKs
-            // get the Sec-GPC: 1 header — not just requests we explicitly control
-            GpcNetworkInterceptor.install(context);
+
+            if (gpcMode == GpcMode.PROXY) {
+                // Production-recommended: local HTTP proxy, works on all Android versions
+                this.gpcProxy = new GpcLocalProxy();
+                try {
+                    this.gpcProxy.start();
+                } catch (java.io.IOException e) {
+                    Log.w(TAG, "Could not start GPC proxy, falling back to hook mode: "
+                            + e.getMessage());
+                    GpcNetworkInterceptor.install(context);
+                }
+            } else {
+                // HOOK mode: YAHFA-based, only Android 7-12, fragile across OEM skins
+                GpcNetworkInterceptor.install(context);
+            }
         }
     }
 
@@ -116,13 +143,14 @@ public class ConsentManager {
                                               String publisherCountryCode,
                                               boolean enableUsPrivacy,
                                               boolean enableGpc,
+                                              GpcMode gpcMode,
                                               boolean gdprApplies,
                                               boolean ccpaApplies) {
         if (mConsentManager == null) {
             mConsentManager = new ConsentManager(
                     context, showConsent, privacyPolicy, excludeLibraries,
                     enableTcf, tcfCmpSdkId, tcfCmpSdkVersion, publisherCountryCode,
-                    enableUsPrivacy, enableGpc, gdprApplies, ccpaApplies);
+                    enableUsPrivacy, enableGpc, gpcMode, gdprApplies, ccpaApplies);
 
             mConsentManager.libraries = new LinkedList<>();
             try {
@@ -354,6 +382,7 @@ public class ConsentManager {
         String publisherCountryCode = "AA"; // "AA" = unknown per TCF spec
         boolean enableUsPrivacy = false;
         boolean enableGpc = false;
+        GpcMode gpcMode = GpcMode.PROXY; // default to stable approach
         boolean gdprApplies = false;
         boolean ccpaApplies = false;
 
@@ -420,12 +449,27 @@ public class ConsentManager {
         }
 
         /**
-         * Enable Global Privacy Control (GPC).
+         * Enable Global Privacy Control (GPC) with the default PROXY mode.
          * Adds Sec-GPC: 1 header to HTTP requests and sets
          * navigator.globalPrivacyControl in WebViews.
+         *
+         * PROXY mode (default) runs a lightweight local HTTP proxy — stable
+         * across all Android versions, no ART hooking required.
          */
         public Builder enableGpc() {
             this.enableGpc = true;
+            this.gpcMode = GpcMode.PROXY;
+            return this;
+        }
+
+        /**
+         * Enable GPC with an explicit mode.
+         *
+         * @param mode PROXY (recommended) or HOOK (YAHFA-based, Android 7-12 only)
+         */
+        public Builder enableGpc(GpcMode mode) {
+            this.enableGpc = true;
+            this.gpcMode = mode;
             return this;
         }
 
@@ -454,7 +498,7 @@ public class ConsentManager {
             return ConsentManager.getInstance(
                     context, showConsent, privacyPolicy, excludedLibraries, customLibraries,
                     enableTcf, tcfCmpSdkId, tcfCmpSdkVersion, publisherCountryCode,
-                    enableUsPrivacy, enableGpc, gdprApplies, ccpaApplies);
+                    enableUsPrivacy, enableGpc, gpcMode, gdprApplies, ccpaApplies);
         }
     }
 }
