@@ -40,13 +40,25 @@ public class ConsentTransformRules {
         public final String libraryId;     // consent library ID
         public final Action action;
 
+        // For INJECT_GPC_HEADER: how to add the header on this builder type
+        public final String headerMethodName;  // e.g. "header", "addHeader"
+        public final String headerMethodDesc;  // e.g. "(Ljava/lang/String;Ljava/lang/String;)L...Builder;"
+
         public Rule(String className, String methodName, String methodDesc,
                     String libraryId, Action action) {
+            this(className, methodName, methodDesc, libraryId, action, null, null);
+        }
+
+        public Rule(String className, String methodName, String methodDesc,
+                    String libraryId, Action action,
+                    String headerMethodName, String headerMethodDesc) {
             this.className = className;
             this.methodName = methodName;
             this.methodDesc = methodDesc;
             this.libraryId = libraryId;
             this.action = action;
+            this.headerMethodName = headerMethodName;
+            this.headerMethodDesc = headerMethodDesc;
         }
     }
 
@@ -99,18 +111,49 @@ public class ConsentTransformRules {
                 "vungle", Action.BLOCK);
 
         // ---- GPC header injection ----
-        // Inject Sec-GPC: 1 into OkHttp requests. Most ad SDKs bundle OkHttp,
-        // so transforming Request.Builder.build() catches their HTTP traffic.
-        // The header is added before TLS, so cert pinning is irrelevant.
-        addRule("okhttp3/Request$Builder", "build",
+        // Inject Sec-GPC: 1 into HTTP request builders at build time.
+        // The header is added in the builder before TLS, so cert pinning
+        // is irrelevant — we're modifying the code that constructs requests.
+
+        // OkHttp3 — used by most modern ad SDKs (bundled internally)
+        addGpcRule("okhttp3/Request$Builder", "build",
                 "()Lokhttp3/Request;",
-                "_gpc", Action.INJECT_GPC_HEADER);
+                "header",
+                "(Ljava/lang/String;Ljava/lang/String;)Lokhttp3/Request$Builder;");
+
+        // OkHttp2 — used by older SDKs that haven't upgraded
+        addGpcRule("com/squareup/okhttp/Request$Builder", "build",
+                "()Lcom/squareup/okhttp/Request;",
+                "header",
+                "(Ljava/lang/String;Ljava/lang/String;)Lcom/squareup/okhttp/Request$Builder;");
+
+        // Cronet — used by Google SDKs (Ads, Play Services)
+        addGpcRule("org/chromium/net/UrlRequest$Builder", "build",
+                "()Lorg/chromium/net/UrlRequest;",
+                "addHeader",
+                "(Ljava/lang/String;Ljava/lang/String;)Lorg/chromium/net/UrlRequest$Builder;");
+
+        // Volley — used by some apps and older SDKs
+        // Volley doesn't have a builder pattern — headers are added via
+        // getHeaders() override. Instead we transform the base Request
+        // constructor to set the header map. This is handled differently:
+        // we hook HurlStack.createConnection() which uses HttpURLConnection.
+        // For now, Volley is covered by the app-level GpcInterceptor.applyTo().
     }
 
     private static void addRule(String className, String methodName, String methodDesc,
                                 String libraryId, Action action) {
         RULES.computeIfAbsent(className, k -> new ArrayList<>())
                 .add(new Rule(className, methodName, methodDesc, libraryId, action));
+    }
+
+    private static void addGpcRule(String className, String buildMethodName,
+                                   String buildMethodDesc,
+                                   String headerMethodName, String headerMethodDesc) {
+        RULES.computeIfAbsent(className, k -> new ArrayList<>())
+                .add(new Rule(className, buildMethodName, buildMethodDesc,
+                        "_gpc", Action.INJECT_GPC_HEADER,
+                        headerMethodName, headerMethodDesc));
     }
 
     /**

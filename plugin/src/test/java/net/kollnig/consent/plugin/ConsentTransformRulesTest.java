@@ -140,20 +140,54 @@ public class ConsentTransformRulesTest {
         assertEquals(2, rules.size()); // initialize(Context) and initialize(Context, Listener)
     }
 
+    // ---- GPC rules ----
+
     @Test
-    public void hasRulesForOkHttpRequestBuilder() {
-        assertTrue(ConsentTransformRules.hasRulesForClass(
-                "okhttp3/Request$Builder"));
+    public void hasRulesForOkHttp3() {
+        assertTrue(ConsentTransformRules.hasRulesForClass("okhttp3/Request$Builder"));
     }
 
     @Test
-    public void findRuleForOkHttpBuild_gpcAction() {
+    public void hasRulesForOkHttp2() {
+        assertTrue(ConsentTransformRules.hasRulesForClass("com/squareup/okhttp/Request$Builder"));
+    }
+
+    @Test
+    public void hasRulesForCronet() {
+        assertTrue(ConsentTransformRules.hasRulesForClass("org/chromium/net/UrlRequest$Builder"));
+    }
+
+    @Test
+    public void findRuleForOkHttp3Build_gpcAction() {
         ConsentTransformRules.Rule rule = ConsentTransformRules.findRule(
                 "okhttp3/Request$Builder",
                 "build",
                 "()Lokhttp3/Request;");
         assertNotNull(rule);
         assertEquals(ConsentTransformRules.Action.INJECT_GPC_HEADER, rule.action);
+        assertEquals("header", rule.headerMethodName);
+    }
+
+    @Test
+    public void findRuleForOkHttp2Build_gpcAction() {
+        ConsentTransformRules.Rule rule = ConsentTransformRules.findRule(
+                "com/squareup/okhttp/Request$Builder",
+                "build",
+                "()Lcom/squareup/okhttp/Request;");
+        assertNotNull(rule);
+        assertEquals(ConsentTransformRules.Action.INJECT_GPC_HEADER, rule.action);
+        assertEquals("header", rule.headerMethodName);
+    }
+
+    @Test
+    public void findRuleForCronetBuild_gpcAction() {
+        ConsentTransformRules.Rule rule = ConsentTransformRules.findRule(
+                "org/chromium/net/UrlRequest$Builder",
+                "build",
+                "()Lorg/chromium/net/UrlRequest;");
+        assertNotNull(rule);
+        assertEquals(ConsentTransformRules.Action.INJECT_GPC_HEADER, rule.action);
+        assertEquals("addHeader", rule.headerMethodName);
     }
 
     @Test
@@ -167,7 +201,9 @@ public class ConsentTransformRulesTest {
                 "com/inmobi/sdk/InMobiSdk",
                 "com/adcolony/sdk/AdColony",
                 "com/vungle/warren/Vungle",
-                "okhttp3/Request$Builder"
+                "okhttp3/Request$Builder",
+                "com/squareup/okhttp/Request$Builder",
+                "org/chromium/net/UrlRequest$Builder"
         };
 
         for (String cls : classes) {

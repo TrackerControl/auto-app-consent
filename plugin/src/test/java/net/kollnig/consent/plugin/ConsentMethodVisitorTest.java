@@ -451,13 +451,20 @@ public class ConsentMethodVisitorTest {
         return found[0];
     }
 
+    // Helper to create a GPC rule with header method info
+    private ConsentTransformRules.Rule gpcRule(String className, String buildDesc,
+                                               String headerMethod, String headerDesc) {
+        return new ConsentTransformRules.Rule(
+                className, "build", buildDesc, "_gpc",
+                ConsentTransformRules.Action.INJECT_GPC_HEADER,
+                headerMethod, headerDesc);
+    }
+
     @Test
     public void gpcAction_producesValidBytecode() {
-        ConsentTransformRules.Rule rule = new ConsentTransformRules.Rule(
-                "okhttp3/Request$Builder", "build",
-                "()Lokhttp3/Request;",
-                "_gpc", ConsentTransformRules.Action.INJECT_GPC_HEADER);
-
+        ConsentTransformRules.Rule rule = gpcRule(
+                "okhttp3/Request$Builder", "()Lokhttp3/Request;",
+                "header", "(Ljava/lang/String;Ljava/lang/String;)Lokhttp3/Request$Builder;");
         byte[] result = transformMethod("okhttp3/Request$Builder", "build",
                 "()Lokhttp3/Request;", rule, false);
         assertValidBytecode(result);
@@ -465,11 +472,9 @@ public class ConsentMethodVisitorTest {
 
     @Test
     public void gpcAction_referencesGpcInterceptor() {
-        ConsentTransformRules.Rule rule = new ConsentTransformRules.Rule(
-                "okhttp3/Request$Builder", "build",
-                "()Lokhttp3/Request;",
-                "_gpc", ConsentTransformRules.Action.INJECT_GPC_HEADER);
-
+        ConsentTransformRules.Rule rule = gpcRule(
+                "okhttp3/Request$Builder", "()Lokhttp3/Request;",
+                "header", "(Ljava/lang/String;Ljava/lang/String;)Lokhttp3/Request$Builder;");
         byte[] result = transformMethod("okhttp3/Request$Builder", "build",
                 "()Lokhttp3/Request;", rule, false);
         assertTrue("Should reference GpcInterceptor", referencesGpcInterceptor(result));
@@ -477,11 +482,9 @@ public class ConsentMethodVisitorTest {
 
     @Test
     public void gpcAction_containsGpcHeaderString() {
-        ConsentTransformRules.Rule rule = new ConsentTransformRules.Rule(
-                "okhttp3/Request$Builder", "build",
-                "()Lokhttp3/Request;",
-                "_gpc", ConsentTransformRules.Action.INJECT_GPC_HEADER);
-
+        ConsentTransformRules.Rule rule = gpcRule(
+                "okhttp3/Request$Builder", "()Lokhttp3/Request;",
+                "header", "(Ljava/lang/String;Ljava/lang/String;)Lokhttp3/Request$Builder;");
         byte[] result = transformMethod("okhttp3/Request$Builder", "build",
                 "()Lokhttp3/Request;", rule, false);
         assertTrue("Should contain Sec-GPC string", containsStringConstant(result, "Sec-GPC"));
@@ -489,11 +492,9 @@ public class ConsentMethodVisitorTest {
 
     @Test
     public void gpcAction_doesNotReferenceConsentManager() {
-        ConsentTransformRules.Rule rule = new ConsentTransformRules.Rule(
-                "okhttp3/Request$Builder", "build",
-                "()Lokhttp3/Request;",
-                "_gpc", ConsentTransformRules.Action.INJECT_GPC_HEADER);
-
+        ConsentTransformRules.Rule rule = gpcRule(
+                "okhttp3/Request$Builder", "()Lokhttp3/Request;",
+                "header", "(Ljava/lang/String;Ljava/lang/String;)Lokhttp3/Request$Builder;");
         byte[] result = transformMethod("okhttp3/Request$Builder", "build",
                 "()Lokhttp3/Request;", rule, false);
         assertFalse("GPC should NOT reference ConsentManager",
@@ -501,18 +502,38 @@ public class ConsentMethodVisitorTest {
     }
 
     @Test
-    public void realSignature_okHttpRequestBuilderBuild() {
+    public void realSignature_okHttp3Build() {
         ConsentTransformRules.Rule rule = ConsentTransformRules.findRule(
-                "okhttp3/Request$Builder",
-                "build",
-                "()Lokhttp3/Request;");
+                "okhttp3/Request$Builder", "build", "()Lokhttp3/Request;");
         assertNotNull(rule);
+        byte[] result = transformMethod("okhttp3/Request$Builder", "build",
+                "()Lokhttp3/Request;", rule, false);
+        assertValidBytecode(result);
+        assertTrue(referencesGpcInterceptor(result));
+        assertTrue(containsStringConstant(result, "Sec-GPC"));
+    }
 
-        byte[] result = transformMethod(
-                "okhttp3/Request$Builder",
-                "build",
-                "()Lokhttp3/Request;",
-                rule, false);
+    @Test
+    public void realSignature_okHttp2Build() {
+        ConsentTransformRules.Rule rule = ConsentTransformRules.findRule(
+                "com/squareup/okhttp/Request$Builder", "build",
+                "()Lcom/squareup/okhttp/Request;");
+        assertNotNull(rule);
+        byte[] result = transformMethod("com/squareup/okhttp/Request$Builder", "build",
+                "()Lcom/squareup/okhttp/Request;", rule, false);
+        assertValidBytecode(result);
+        assertTrue(referencesGpcInterceptor(result));
+        assertTrue(containsStringConstant(result, "Sec-GPC"));
+    }
+
+    @Test
+    public void realSignature_cronetBuild() {
+        ConsentTransformRules.Rule rule = ConsentTransformRules.findRule(
+                "org/chromium/net/UrlRequest$Builder", "build",
+                "()Lorg/chromium/net/UrlRequest;");
+        assertNotNull(rule);
+        byte[] result = transformMethod("org/chromium/net/UrlRequest$Builder", "build",
+                "()Lorg/chromium/net/UrlRequest;", rule, false);
         assertValidBytecode(result);
         assertTrue(referencesGpcInterceptor(result));
         assertTrue(containsStringConstant(result, "Sec-GPC"));
