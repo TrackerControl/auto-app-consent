@@ -29,10 +29,6 @@ android {
 }
 
 dependencies {
-    // Pine: ART hooking framework with Java API (Android 5.0+, actively maintained)
-    // Replaces YAHFA which only supported Android 7-12
-    implementation "top.canyie.pine:core:0.3.0"
-
     implementation 'androidx.appcompat:appcompat:1.4.2'
     implementation 'com.google.android.material:material:1.6.1'
     testImplementation 'junit:junit:4.13.2'
