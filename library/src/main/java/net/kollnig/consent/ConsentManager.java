@@ -24,6 +24,9 @@ import net.kollnig.consent.library.IronSourceLibrary;
 import net.kollnig.consent.library.Library;
 import net.kollnig.consent.library.LibraryInteractionException;
 import net.kollnig.consent.library.VungleLibrary;
+import net.kollnig.consent.standards.GpcInterceptor;
+import net.kollnig.consent.standards.TcfConsentManager;
+import net.kollnig.consent.standards.UsPrivacyManager;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -41,6 +44,13 @@ public class ConsentManager {
     private List<Library> libraries;
     private final Context context;
     private final String[] excludedLibraries;
+
+    // Standards support
+    private TcfConsentManager tcfManager;
+    private UsPrivacyManager usPrivacyManager;
+    private boolean gpcEnabled;
+    private boolean gdprApplies;
+    private boolean ccpaApplies;
 
     Library[] availableLibraries = {
             new FirebaseAnalyticsLibrary(),
@@ -60,21 +70,55 @@ public class ConsentManager {
     private ConsentManager(Context context,
                            boolean showConsent,
                            Uri privacyPolicy,
-                           String[] excludedLibraries) {
+                           String[] excludedLibraries,
+                           boolean enableTcf,
+                           int tcfCmpSdkId,
+                           int tcfCmpSdkVersion,
+                           String publisherCountryCode,
+                           boolean enableUsPrivacy,
+                           boolean enableGpc,
+                           boolean gdprApplies,
+                           boolean ccpaApplies) {
 
         this.context = context;
         this.showConsent = showConsent;
         this.privacyPolicy = privacyPolicy;
         this.excludedLibraries = excludedLibraries;
+        this.gdprApplies = gdprApplies;
+        this.ccpaApplies = ccpaApplies;
+        this.gpcEnabled = enableGpc;
+
+        // Initialize standards managers
+        if (enableTcf) {
+            this.tcfManager = new TcfConsentManager(
+                    context, tcfCmpSdkId, tcfCmpSdkVersion, publisherCountryCode);
+        }
+        if (enableUsPrivacy) {
+            this.usPrivacyManager = new UsPrivacyManager(context);
+        }
+        if (enableGpc) {
+            GpcInterceptor.setEnabled(true);
+        }
     }
 
     private static ConsentManager getInstance(Context context,
                                               Boolean showConsent,
                                               Uri privacyPolicy,
                                               String[] excludeLibraries,
-                                              Library[] customLibraries) {
+                                              Library[] customLibraries,
+                                              boolean enableTcf,
+                                              int tcfCmpSdkId,
+                                              int tcfCmpSdkVersion,
+                                              String publisherCountryCode,
+                                              boolean enableUsPrivacy,
+                                              boolean enableGpc,
+                                              boolean gdprApplies,
+                                              boolean ccpaApplies) {
         if (mConsentManager == null) {
-            mConsentManager = new ConsentManager(context, showConsent, privacyPolicy, excludeLibraries);
+            mConsentManager = new ConsentManager(
+                    context, showConsent, privacyPolicy, excludeLibraries,
+                    enableTcf, tcfCmpSdkId, tcfCmpSdkVersion, publisherCountryCode,
+                    enableUsPrivacy, enableGpc, gdprApplies, ccpaApplies);
 
             mConsentManager.libraries = new LinkedList<>();
             try {
@@ -94,6 +138,9 @@ public class ConsentManager {
             } catch (LibraryInteractionException e) {
                 e.printStackTrace();
             }
+
+            // Write initial deny signals for standards (default deny until consent given)
+            mConsentManager.updateStandardsSignals(false);
 
             mConsentManager.askConsent();
         }
@@ -137,6 +184,15 @@ public class ConsentManager {
 
     public void clearConsent() {
         getPreferences(context).edit().clear().apply();
+
+        // Clear standards signals too
+        if (tcfManager != null) {
+            tcfManager.clearConsentSignals();
+        }
+        if (usPrivacyManager != null) {
+            usPrivacyManager.clearConsentSignal();
+        }
+        GpcInterceptor.setEnabled(gpcEnabled);
     }
 
     public void saveConsent(String libraryId, boolean consent) {
@@ -163,6 +219,61 @@ public class ConsentManager {
             }
         }
         prefs.edit().putStringSet("consents", prefsSet).apply();
+
+        // Update standards signals based on overall consent state
+        updateStandardsSignals(hasAnyConsent());
+    }
+
+    /**
+     * Check if the user has given consent to at least one library.
+     */
+    private boolean hasAnyConsent() {
+        for (Library library : libraries) {
+            if (Boolean.TRUE.equals(hasConsent(library.getId()))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Update all enabled industry-standard consent signals.
+     * Called when consent state changes.
+     */
+    private void updateStandardsSignals(boolean consent) {
+        if (tcfManager != null) {
+            tcfManager.writeConsentSignals(gdprApplies, consent);
+        }
+        if (usPrivacyManager != null) {
+            usPrivacyManager.writeConsentSignal(ccpaApplies, consent);
+        }
+        // GPC is always-on when enabled — it signals "do not sell" regardless of
+        // per-library consent, as it represents the user's general privacy preference
+    }
+
+    /**
+     * Get the TCF consent manager for advanced per-purpose configuration.
+     * Returns null if TCF was not enabled in the builder.
+     */
+    @Nullable
+    public TcfConsentManager getTcfManager() {
+        return tcfManager;
+    }
+
+    /**
+     * Get the US Privacy manager for advanced CCPA configuration.
+     * Returns null if US Privacy was not enabled in the builder.
+     */
+    @Nullable
+    public UsPrivacyManager getUsPrivacyManager() {
+        return usPrivacyManager;
+    }
+
+    /**
+     * Check if GPC (Global Privacy Control) is enabled.
+     */
+    public boolean isGpcEnabled() {
+        return GpcInterceptor.isEnabled();
     }
 
     public void askConsent() {
@@ -195,8 +306,8 @@ public class ConsentManager {
                         saveConsent(libraryId, selectedItems.contains(libraryId));
                     }
                 })
-                /*.setNegativeButton(R.string.no, (dialog, which) -> {
-                    for (Library library: libraries) {
+                .setNegativeButton(R.string.reject_all, (dialog, which) -> {
+                    for (Library library : libraries) {
                         String libraryId = library.getId();
 
                         if (!ids.contains(libraryId))
@@ -204,7 +315,7 @@ public class ConsentManager {
 
                         saveConsent(libraryId, false);
                     }
-                })*/
+                })
                 .setMultiChoiceItems(names.toArray(new String[0]), null, (dialog, i, isChecked) -> {
                     if (isChecked) selectedItems.add(ids.get(i));
                     else selectedItems.remove(ids.get(i));
@@ -232,31 +343,103 @@ public class ConsentManager {
         String[] excludedLibraries = {};
         Library[] customLibraries = {};
 
+        // Standards support options
+        boolean enableTcf = false;
+        int tcfCmpSdkId = 0;
+        int tcfCmpSdkVersion = 1;
+        String publisherCountryCode = "AA"; // "AA" = unknown per TCF spec
+        boolean enableUsPrivacy = false;
+        boolean enableGpc = false;
+        boolean gdprApplies = false;
+        boolean ccpaApplies = false;
+
         public Builder(Context context) {
             this.context = context;
         }
 
         public Builder setCustomLibraries(Library[] customLibraries) {
             this.customLibraries = customLibraries;
-
             return this;
         }
 
         public Builder setShowConsent(boolean showConsent) {
             this.showConsent = showConsent;
-
             return this;
         }
 
         public Builder setPrivacyPolicy(Uri privacyPolicy) {
             this.privacyPolicy = privacyPolicy;
-
             return this;
         }
 
         public Builder setExcludedLibraries(String[] excludedLibraries) {
             this.excludedLibraries = excludedLibraries;
+            return this;
+        }
 
+        /**
+         * Enable IAB TCF v2.2 support. Writes standard IABTCF_ keys to
+         * SharedPreferences that most ad SDKs read natively.
+         *
+         * @param cmpSdkId   your registered CMP SDK ID (0 = unregistered)
+         * @param sdkVersion your CMP SDK version
+         */
+        public Builder enableTcf(int cmpSdkId, int sdkVersion) {
+            this.enableTcf = true;
+            this.tcfCmpSdkId = cmpSdkId;
+            this.tcfCmpSdkVersion = sdkVersion;
+            return this;
+        }
+
+        /**
+         * Enable IAB TCF v2.2 with default values (unregistered CMP).
+         */
+        public Builder enableTcf() {
+            return enableTcf(0, 1);
+        }
+
+        /**
+         * Set the publisher's country code for TCF (ISO 3166-1 alpha-2).
+         */
+        public Builder setPublisherCountryCode(String countryCode) {
+            this.publisherCountryCode = countryCode;
+            return this;
+        }
+
+        /**
+         * Enable IAB US Privacy String (CCPA) support.
+         * Writes IABUSPrivacy_String to SharedPreferences.
+         */
+        public Builder enableUsPrivacy() {
+            this.enableUsPrivacy = true;
+            return this;
+        }
+
+        /**
+         * Enable Global Privacy Control (GPC).
+         * Adds Sec-GPC: 1 header to HTTP requests and sets
+         * navigator.globalPrivacyControl in WebViews.
+         */
+        public Builder enableGpc() {
+            this.enableGpc = true;
+            return this;
+        }
+
+        /**
+         * Set whether GDPR applies to users of this app.
+         * Affects TCF signal output.
+         */
+        public Builder setGdprApplies(boolean gdprApplies) {
+            this.gdprApplies = gdprApplies;
+            return this;
+        }
+
+        /**
+         * Set whether CCPA applies to users of this app.
+         * Affects US Privacy String output.
+         */
+        public Builder setCcpaApplies(boolean ccpaApplies) {
+            this.ccpaApplies = ccpaApplies;
             return this;
         }
 
@@ -264,7 +447,10 @@ public class ConsentManager {
             if (privacyPolicy == null)
                 throw new RuntimeException("No privacy policy provided.");
 
-            return ConsentManager.getInstance(context, showConsent, privacyPolicy, excludedLibraries, customLibraries);
+            return ConsentManager.getInstance(
+                    context, showConsent, privacyPolicy, excludedLibraries, customLibraries,
+                    enableTcf, tcfCmpSdkId, tcfCmpSdkVersion, publisherCountryCode,
+                    enableUsPrivacy, enableGpc, gdprApplies, ccpaApplies);
         }
     }
 }
