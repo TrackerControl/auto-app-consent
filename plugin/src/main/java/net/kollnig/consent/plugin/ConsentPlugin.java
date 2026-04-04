@@ -1,7 +1,9 @@
 package net.kollnig.consent.plugin;
 
+import com.android.build.api.instrumentation.FramesComputationMode;
 import com.android.build.api.instrumentation.InstrumentationScope;
 import com.android.build.api.variant.AndroidComponentsExtension;
+import com.android.build.api.variant.Variant;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -25,18 +27,20 @@ import org.gradle.api.Project;
 public class ConsentPlugin implements Plugin<Project> {
 
     @Override
+    @SuppressWarnings("unchecked")
     public void apply(Project project) {
         // Register the bytecode transformation with the Android Gradle Plugin
-        AndroidComponentsExtension androidComponents = project.getExtensions()
-                .getByType(AndroidComponentsExtension.class);
+        AndroidComponentsExtension<?, ?, Variant> androidComponents =
+                (AndroidComponentsExtension<?, ?, Variant>) project.getExtensions()
+                        .getByType(AndroidComponentsExtension.class);
 
         androidComponents.onVariants(androidComponents.selector().all(), variant -> {
-            variant.transformClassesWith(
+            variant.getInstrumentation().transformClassesWith(
                     ConsentClassVisitorFactory.class,
-                    InstrumentationScope.ALL  // Transform all classes including dependencies
+                    InstrumentationScope.ALL
             );
-            variant.setAsmFramesComputationMode(
-                    com.android.build.api.instrumentation.FramesComputationMode.COMPUTE_FRAMES_FOR_INSTRUMENTED_METHODS
+            variant.getInstrumentation().setAsmFramesComputationMode(
+                    FramesComputationMode.COMPUTE_FRAMES_FOR_INSTRUMENTED_METHODS
             );
         });
     }
