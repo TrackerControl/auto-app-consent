@@ -1,6 +1,7 @@
 package net.kollnig.consent.plugin;
 
 import com.android.build.api.instrumentation.FramesComputationMode;
+import com.android.build.api.instrumentation.InstrumentationParameters;
 import com.android.build.api.instrumentation.InstrumentationScope;
 import com.android.build.api.variant.AndroidComponentsExtension;
 import com.android.build.api.variant.Variant;
@@ -37,7 +38,8 @@ public class ConsentPlugin implements Plugin<Project> {
         androidComponents.onVariants(androidComponents.selector().all(), variant -> {
             variant.getInstrumentation().transformClassesWith(
                     ConsentClassVisitorFactory.class,
-                    InstrumentationScope.ALL
+                    InstrumentationScope.ALL,
+                    params -> { return kotlin.Unit.INSTANCE; }
             );
             variant.getInstrumentation().setAsmFramesComputationMode(
                     FramesComputationMode.COMPUTE_FRAMES_FOR_INSTRUMENTED_METHODS

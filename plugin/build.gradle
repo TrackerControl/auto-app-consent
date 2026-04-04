@@ -11,6 +11,9 @@ dependencies {
     // Android Gradle Plugin API — needed for ConsentPlugin and ConsentClassVisitorFactory
     implementation 'com.android.tools.build:gradle-api:7.2.1'
 
+    // Kotlin stdlib — needed because AGP's API uses Kotlin function types
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.7.10'
+
     // ASM bytecode manipulation
     implementation 'org.ow2.asm:asm:9.7'
     implementation 'org.ow2.asm:asm-commons:9.7'
