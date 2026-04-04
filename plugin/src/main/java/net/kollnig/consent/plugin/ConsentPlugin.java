@@ -1,13 +1,14 @@
 package net.kollnig.consent.plugin;
 
 import com.android.build.api.instrumentation.FramesComputationMode;
-import com.android.build.api.instrumentation.InstrumentationParameters;
 import com.android.build.api.instrumentation.InstrumentationScope;
 import com.android.build.api.variant.AndroidComponentsExtension;
 import com.android.build.api.variant.Variant;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+
+import kotlin.Unit;
 
 /**
  * Gradle plugin that transforms third-party SDK bytecode at build time
@@ -28,20 +29,18 @@ import org.gradle.api.Project;
 public class ConsentPlugin implements Plugin<Project> {
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public void apply(Project project) {
-        // Register the bytecode transformation with the Android Gradle Plugin
-        AndroidComponentsExtension<?, ?, Variant> androidComponents =
-                (AndroidComponentsExtension<?, ?, Variant>) project.getExtensions()
-                        .getByType(AndroidComponentsExtension.class);
+        AndroidComponentsExtension androidComponents = project.getExtensions()
+                .getByType(AndroidComponentsExtension.class);
 
         androidComponents.onVariants(androidComponents.selector().all(), variant -> {
-            variant.getInstrumentation().transformClassesWith(
+            ((Variant) variant).getInstrumentation().transformClassesWith(
                     ConsentClassVisitorFactory.class,
                     InstrumentationScope.ALL,
-                    params -> { return kotlin.Unit.INSTANCE; }
+                    params -> Unit.INSTANCE
             );
-            variant.getInstrumentation().setAsmFramesComputationMode(
+            ((Variant) variant).getInstrumentation().setAsmFramesComputationMode(
                     FramesComputationMode.COMPUTE_FRAMES_FOR_INSTRUMENTED_METHODS
             );
         });
