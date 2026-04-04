@@ -101,7 +101,19 @@ webView.getSettings().setJavaScriptEnabled(true);
 
 This injects both the `Sec-GPC: 1` HTTP header and `navigator.globalPrivacyControl = true`.
 
-### 5. Optional: GPC for your own HTTP requests
+### 5. GPC coverage across HTTP stacks
+
+When `.enableGpc()` is called, the `Sec-GPC: 1` header is automatically injected across all major HTTP clients used by Android SDKs:
+
+| HTTP client | Coverage mechanism | SDKs using it |
+|---|---|---|
+| **OkHttp3** | Build-time bytecode transform on `Request.Builder.build()` | Most modern ad SDKs |
+| **OkHttp2** | Build-time bytecode transform on `Request.Builder.build()` | Older SDKs |
+| **Cronet** | Build-time bytecode transform on `UrlRequest.Builder.build()` | Google SDKs (Ads, Play Services) |
+| **HttpURLConnection** | `URLStreamHandlerFactory` at runtime (standard Java API) | Firebase, some older SDKs |
+| **WebViews** | `GpcWebViewClient` (header + `navigator.globalPrivacyControl`) | Any in-app web content |
+
+For your app's own HTTP requests, you can also use `GpcInterceptor.applyTo()` manually:
 
 ```java
 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -171,7 +183,8 @@ addRule("com/example/sdk/Tracker", "init",
 │  ├── Consent storage (SharedPreferences)                      │
 │  ├── TCF v2.2 signals (IABTCF_* in default SharedPreferences) │
 │  ├── US Privacy string (IABUSPrivacy_String)                  │
-│  ├── GPC for WebViews (GpcWebViewClient)                      │
+│  ├── GPC: WebViews (GpcWebViewClient)                         │
+│  ├── GPC: HttpURLConnection (GpcUrlHandler — Java API)        │
 │  └── SDK-specific reflection (setEnabled, setConsent, etc.)   │
 └───────────────────────────────────────────────────────────────┘
 ```
@@ -184,7 +197,7 @@ addRule("com/example/sdk/Tracker", "init",
 
 **IAB US Privacy (CCPA)**: Writes the `IABUSPrivacy_String` (e.g., `1YNN` for consent given, `1YYN` for opted out). Ad SDKs that support CCPA read this natively.
 
-**Global Privacy Control**: A web standard — applies to WebViews (via `GpcWebViewClient`) and the app's own HTTP requests (via `GpcInterceptor.applyTo()`). Not designed for in-app SDK traffic, where TCF/US Privacy are the correct signals.
+**Global Privacy Control**: The `Sec-GPC: 1` header is injected across all HTTP stacks: OkHttp3/OkHttp2/Cronet via build-time bytecode transforms, HttpURLConnection via `URLStreamHandlerFactory`, and WebViews via `GpcWebViewClient`. For consent signaling to SDKs that read preferences before making requests, TCF/US Privacy are also used.
 
 ### SDK-Specific Details
 
