@@ -36,6 +36,19 @@
     <string name="accept">Accept</string>
     <string name="reject_all">Reject all</string>
 
+    <!-- Purpose-based consent (TCF-aligned categories) -->
+    <string name="consent_purpose_title">This app uses the following data processing categories. Please select which you consent to:</string>
+    <string name="purpose_analytics_name">Analytics</string>
+    <string name="purpose_analytics_desc">Understand how you use the app and measure performance. Data may be shared with analytics providers.</string>
+    <string name="purpose_advertising_name">Advertising</string>
+    <string name="purpose_advertising_desc">Show you ads, including personalized ads based on your interests. Data may be shared with advertising networks.</string>
+    <string name="purpose_crash_reporting_name">Crash Reporting</string>
+    <string name="purpose_crash_reporting_desc">Detect and fix app crashes to improve stability. Crash data may be shared with the developer\'s crash reporting service.</string>
+    <string name="purpose_social_name">Social Features</string>
+    <string name="purpose_social_desc">Enable social media integration and features. Data may be shared with the social media platform.</string>
+    <string name="purpose_identification_name">Cross-App Tracking</string>
+    <string name="purpose_identification_desc">Use an advertising identifier that can track your activity across apps.</string>
+
     <!-- Standards info -->
     <string name="standards_notice">This app respects your privacy choices through industry standards including IAB TCF v2.2, CCPA/US Privacy, and Global Privacy Control (GPC).</string>
     <string name="gpc_enabled_notice">Global Privacy Control is active. A \"do not sell or share\" signal is sent with your web requests.</string>

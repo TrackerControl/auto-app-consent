@@ -24,6 +24,8 @@ import net.kollnig.consent.library.IronSourceLibrary;
 import net.kollnig.consent.library.Library;
 import net.kollnig.consent.library.LibraryInteractionException;
 import net.kollnig.consent.library.VungleLibrary;
+import net.kollnig.consent.purpose.ConsentPurpose;
+import net.kollnig.consent.standards.GoogleConsentMode;
 import net.kollnig.consent.standards.GpcInterceptor;
 import net.kollnig.consent.standards.GpcUrlHandler;
 import net.kollnig.consent.standards.TcfConsentManager;
@@ -33,6 +35,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class ConsentManager {
@@ -43,6 +46,7 @@ public class ConsentManager {
     private final Uri privacyPolicy;
     private final boolean showConsent;
     private List<Library> libraries;
+    private Map<String, ConsentPurpose> purposes;
     private final Context context;
     private final String[] excludedLibraries;
 
@@ -52,6 +56,7 @@ public class ConsentManager {
     private boolean gpcEnabled;
     private boolean gdprApplies;
     private boolean ccpaApplies;
+    private boolean consentModeEnabled;
 
     Library[] availableLibraries = {
             new FirebaseAnalyticsLibrary(),
@@ -78,6 +83,7 @@ public class ConsentManager {
                            String publisherCountryCode,
                            boolean enableUsPrivacy,
                            boolean enableGpc,
+                           boolean enableConsentMode,
                            boolean gdprApplies,
                            boolean ccpaApplies) {
 
@@ -88,8 +94,8 @@ public class ConsentManager {
         this.gdprApplies = gdprApplies;
         this.ccpaApplies = ccpaApplies;
         this.gpcEnabled = enableGpc;
+        this.consentModeEnabled = enableConsentMode;
 
-        // Initialize standards managers
         if (enableTcf) {
             this.tcfManager = new TcfConsentManager(
                     context, tcfCmpSdkId, tcfCmpSdkVersion, publisherCountryCode);
@@ -99,11 +105,6 @@ public class ConsentManager {
         }
         if (enableGpc) {
             GpcInterceptor.setEnabled(true);
-
-            // Install GPC for HttpURLConnection-based traffic.
-            // Uses Java's URLStreamHandlerFactory API (stable, no hooking).
-            // OkHttp/Cronet traffic is covered by the build-time bytecode
-            // transform plugin. WebViews are covered by GpcWebViewClient.
             GpcUrlHandler.install();
         }
     }
@@ -119,17 +120,17 @@ public class ConsentManager {
                                               String publisherCountryCode,
                                               boolean enableUsPrivacy,
                                               boolean enableGpc,
+                                              boolean enableConsentMode,
                                               boolean gdprApplies,
                                               boolean ccpaApplies) {
         if (mConsentManager == null) {
             mConsentManager = new ConsentManager(
                     context, showConsent, privacyPolicy, excludeLibraries,
                     enableTcf, tcfCmpSdkId, tcfCmpSdkVersion, publisherCountryCode,
-                    enableUsPrivacy, enableGpc, gdprApplies, ccpaApplies);
+                    enableUsPrivacy, enableGpc, enableConsentMode, gdprApplies, ccpaApplies);
 
             mConsentManager.libraries = new LinkedList<>();
             try {
-                // merge `availableLibraries` and `customLibraries` into `allLibraries`
                 List<Library> allLibraries = new LinkedList<>(Arrays.asList(mConsentManager.availableLibraries));
                 allLibraries.addAll(Arrays.asList(customLibraries));
 
@@ -139,15 +140,20 @@ public class ConsentManager {
                         continue;
 
                     library.initialise(context);
-
                     mConsentManager.libraries.add(library);
                 }
             } catch (LibraryInteractionException e) {
                 e.printStackTrace();
             }
 
-            // Write initial deny signals for standards (default deny until consent given)
+            // Build purpose map, filtering to only purposes that have present libraries
+            mConsentManager.purposes = ConsentPurpose.getDefaults();
+
+            // Write initial deny signals
             mConsentManager.updateStandardsSignals(false);
+            if (mConsentManager.consentModeEnabled) {
+                GoogleConsentMode.setConsent(context, false, false);
+            }
 
             mConsentManager.askConsent();
         }
@@ -158,7 +164,6 @@ public class ConsentManager {
     public static ConsentManager getInstance() {
         if (mConsentManager == null)
             throw new RuntimeException("ConsentManager has not yet been correctly initialised.");
-
         return mConsentManager;
     }
 
@@ -166,10 +171,10 @@ public class ConsentManager {
         return context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
     }
 
-    public @Nullable
-    Boolean hasConsent(String libraryId) {
-        SharedPreferences prefs = getPreferences(context);
+    // ---- Per-library consent (used by build-time transforms) ----
 
+    public @Nullable Boolean hasConsent(String libraryId) {
+        SharedPreferences prefs = getPreferences(context);
         Set<String> set = prefs.getStringSet("consents", new HashSet<>());
         if (set.contains(libraryId + ":" + true))
             return true;
@@ -179,74 +184,131 @@ public class ConsentManager {
             return null;
     }
 
-    public String[] getManagedLibraries() {
-        String[] libraryIds = new String[libraries.size()];
-
-        for (int i = 0; i < libraries.size(); i++) {
-            libraryIds[i] = libraries.get(i).getId();
-        }
-
-        return libraryIds;
-    }
-
-    public void clearConsent() {
-        getPreferences(context).edit().clear().apply();
-
-        // Clear standards signals too
-        if (tcfManager != null) {
-            tcfManager.clearConsentSignals();
-        }
-        if (usPrivacyManager != null) {
-            usPrivacyManager.clearConsentSignal();
-        }
-        GpcInterceptor.setEnabled(gpcEnabled);
-    }
-
     public void saveConsent(String libraryId, boolean consent) {
         SharedPreferences prefs = getPreferences(context);
-
         Set<String> set = prefs.getStringSet("consents", null);
         Set<String> prefsSet = new HashSet<>();
-        if (set != null)
-            prefsSet.addAll(set);
+        if (set != null) prefsSet.addAll(set);
 
         for (Library library : libraries) {
-            if (!library.getId().equals(libraryId))
-                continue;
-
+            if (!library.getId().equals(libraryId)) continue;
             try {
                 library.passConsentToLibrary(consent);
-
                 prefsSet.remove(library.getId() + ":" + true);
                 prefsSet.remove(library.getId() + ":" + false);
-
                 prefsSet.add(library.getId() + ":" + consent);
             } catch (LibraryInteractionException e) {
                 e.printStackTrace();
             }
         }
         prefs.edit().putStringSet("consents", prefsSet).apply();
-
-        // Update standards signals based on overall consent state
-        updateStandardsSignals(hasAnyConsent());
     }
 
+    // ---- Purpose-based consent ----
+
     /**
-     * Check if the user has given consent to at least one library.
+     * Save consent for an entire purpose. This sets consent for all SDKs
+     * in that purpose and updates all standards signals.
      */
-    private boolean hasAnyConsent() {
-        for (Library library : libraries) {
-            if (Boolean.TRUE.equals(hasConsent(library.getId()))) {
-                return true;
-            }
+    public void savePurposeConsent(String purposeId, boolean consent) {
+        ConsentPurpose purpose = purposes.get(purposeId);
+        if (purpose == null) return;
+
+        // Save consent for each library in this purpose
+        for (String libraryId : purpose.libraryIds) {
+            saveConsent(libraryId, consent);
         }
-        return false;
+
+        // Save purpose-level consent
+        SharedPreferences prefs = getPreferences(context);
+        Set<String> purposeSet = prefs.getStringSet("purpose_consents", null);
+        Set<String> prefsSet = new HashSet<>();
+        if (purposeSet != null) prefsSet.addAll(purposeSet);
+        prefsSet.remove(purposeId + ":true");
+        prefsSet.remove(purposeId + ":false");
+        prefsSet.add(purposeId + ":" + consent);
+        prefs.edit().putStringSet("purpose_consents", prefsSet).apply();
+
+        // Update all standards signals
+        updateAllSignals();
     }
 
     /**
-     * Update all enabled industry-standard consent signals.
-     * Called when consent state changes.
+     * Check if a purpose has been consented to.
      */
+    public @Nullable Boolean hasPurposeConsent(String purposeId) {
+        SharedPreferences prefs = getPreferences(context);
+        Set<String> set = prefs.getStringSet("purpose_consents", new HashSet<>());
+        if (set.contains(purposeId + ":true")) return true;
+        else if (set.contains(purposeId + ":false")) return false;
+        else return null;
+    }
+
+    /**
+     * Get the purpose definitions.
+     */
+    public Map<String, ConsentPurpose> getPurposes() {
+        return purposes;
+    }
+
+    public String[] getManagedLibraries() {
+        String[] libraryIds = new String[libraries.size()];
+        for (int i = 0; i < libraries.size(); i++) {
+            libraryIds[i] = libraries.get(i).getId();
+        }
+        return libraryIds;
+    }
+
+    public void clearConsent() {
+        getPreferences(context).edit().clear().apply();
+        if (tcfManager != null) tcfManager.clearConsentSignals();
+        if (usPrivacyManager != null) usPrivacyManager.clearConsentSignal();
+        GpcInterceptor.setEnabled(gpcEnabled);
+    }
+
+    // ---- Standards signals ----
+
+    private void updateAllSignals() {
+        boolean analyticsConsent = Boolean.TRUE.equals(
+                hasPurposeConsent(ConsentPurpose.PURPOSE_ANALYTICS));
+        boolean adsConsent = Boolean.TRUE.equals(
+                hasPurposeConsent(ConsentPurpose.PURPOSE_ADVERTISING));
+        boolean anyConsent = analyticsConsent || adsConsent
+                || Boolean.TRUE.equals(hasPurposeConsent(ConsentPurpose.PURPOSE_CRASH_REPORTING))
+                || Boolean.TRUE.equals(hasPurposeConsent(ConsentPurpose.PURPOSE_SOCIAL));
+
+        // TCF: build per-purpose consent array from purpose decisions
+        if (tcfManager != null) {
+            boolean[] tcfPurposes = new boolean[TcfConsentManager.PURPOSE_COUNT];
+            boolean[] tcfSpecialFeatures = new boolean[TcfConsentManager.SPECIAL_FEATURE_COUNT];
+
+            for (ConsentPurpose purpose : purposes.values()) {
+                boolean consented = Boolean.TRUE.equals(hasPurposeConsent(purpose.id));
+                for (int tcfId : purpose.tcfPurposeIds) {
+                    if (tcfId >= 1 && tcfId <= TcfConsentManager.PURPOSE_COUNT) {
+                        tcfPurposes[tcfId - 1] = consented;
+                    }
+                }
+                // Special case: identification maps to special feature 2
+                if (ConsentPurpose.PURPOSE_IDENTIFICATION.equals(purpose.id)) {
+                    tcfSpecialFeatures[1] = consented; // Special Feature 2
+                }
+            }
+
+            tcfManager.writeConsentSignals(gdprApplies, tcfPurposes, tcfSpecialFeatures);
+        }
+
+        // US Privacy
+        if (usPrivacyManager != null) {
+            usPrivacyManager.writeConsentSignal(ccpaApplies, anyConsent);
+        }
+
+        // Google Consent Mode v2
+        if (consentModeEnabled) {
+            GoogleConsentMode.setConsent(context, analyticsConsent, adsConsent);
+        }
+    }
+
     private void updateStandardsSignals(boolean consent) {
         if (tcfManager != null) {
             tcfManager.writeConsentSignals(gdprApplies, consent);
@@ -254,84 +316,80 @@ public class ConsentManager {
         if (usPrivacyManager != null) {
             usPrivacyManager.writeConsentSignal(ccpaApplies, consent);
         }
-        // GPC is always-on when enabled — it signals "do not sell" regardless of
-        // per-library consent, as it represents the user's general privacy preference
     }
+
+    @Nullable public TcfConsentManager getTcfManager() { return tcfManager; }
+    @Nullable public UsPrivacyManager getUsPrivacyManager() { return usPrivacyManager; }
+    public boolean isGpcEnabled() { return GpcInterceptor.isEnabled(); }
+
+    // ---- Consent dialog ----
 
     /**
-     * Get the TCF consent manager for advanced per-purpose configuration.
-     * Returns null if TCF was not enabled in the builder.
+     * Show the purpose-based consent dialog.
+     * Lists purposes (Analytics, Advertising, etc.) instead of individual SDKs.
      */
-    @Nullable
-    public TcfConsentManager getTcfManager() {
-        return tcfManager;
-    }
-
-    /**
-     * Get the US Privacy manager for advanced CCPA configuration.
-     * Returns null if US Privacy was not enabled in the builder.
-     */
-    @Nullable
-    public UsPrivacyManager getUsPrivacyManager() {
-        return usPrivacyManager;
-    }
-
-    /**
-     * Check if GPC (Global Privacy Control) is enabled.
-     */
-    public boolean isGpcEnabled() {
-        return GpcInterceptor.isEnabled();
-    }
-
     public void askConsent() {
-        List<String> ids = new LinkedList<>();
-        List<String> names = new LinkedList<>();
-        List<String> selectedItems = new LinkedList<>();
+        // Build list of purposes that have at least one present library and need consent
+        List<ConsentPurpose> pendingPurposes = new LinkedList<>();
 
+        Set<String> presentLibraryIds = new HashSet<>();
         for (Library library : libraries) {
             if (library.isPresent()) {
-                String libraryId = library.getId();
-                if (hasConsent(libraryId) == null && showConsent) {
-                    ids.add(libraryId);
-                    names.add(context.getString(library.getName()));
-                }
+                presentLibraryIds.add(library.getId());
             }
         }
 
-        if (ids.size() == 0)
-            return;
+        for (ConsentPurpose purpose : purposes.values()) {
+            if (purpose.essential) continue;
+            if (hasPurposeConsent(purpose.id) != null) continue;
+            if (!showConsent) continue;
+
+            // Only show purposes that have at least one present library
+            boolean hasPresent = false;
+            for (String libId : purpose.libraryIds) {
+                if (presentLibraryIds.contains(libId)) {
+                    hasPresent = true;
+                    break;
+                }
+            }
+            if (hasPresent) {
+                pendingPurposes.add(purpose);
+            }
+        }
+
+        if (pendingPurposes.isEmpty()) return;
+
+        String[] names = new String[pendingPurposes.size()];
+        for (int i = 0; i < pendingPurposes.size(); i++) {
+            ConsentPurpose p = pendingPurposes.get(i);
+            names[i] = context.getString(p.nameResId) + "\n"
+                    + context.getString(p.descriptionResId);
+        }
+
+        List<String> selectedPurposes = new LinkedList<>();
 
         final AlertDialog alertDialog = new AlertDialog.Builder(context)
-                .setTitle(R.string.consent_title)
+                .setTitle(R.string.consent_purpose_title)
                 .setPositiveButton(R.string.accept_selected, (dialog, which) -> {
-                    for (Library library : libraries) {
-                        String libraryId = library.getId();
-
-                        if (!ids.contains(libraryId))
-                            continue;
-
-                        saveConsent(libraryId, selectedItems.contains(libraryId));
+                    for (ConsentPurpose purpose : pendingPurposes) {
+                        savePurposeConsent(purpose.id,
+                                selectedPurposes.contains(purpose.id));
                     }
                 })
                 .setNegativeButton(R.string.reject_all, (dialog, which) -> {
-                    for (Library library : libraries) {
-                        String libraryId = library.getId();
-
-                        if (!ids.contains(libraryId))
-                            continue;
-
-                        saveConsent(libraryId, false);
+                    for (ConsentPurpose purpose : pendingPurposes) {
+                        savePurposeConsent(purpose.id, false);
                     }
                 })
-                .setMultiChoiceItems(names.toArray(new String[0]), null, (dialog, i, isChecked) -> {
-                    if (isChecked) selectedItems.add(ids.get(i));
-                    else selectedItems.remove(ids.get(i));
+                .setMultiChoiceItems(names, null, (dialog, i, isChecked) -> {
+                    String purposeId = pendingPurposes.get(i).id;
+                    if (isChecked) selectedPurposes.add(purposeId);
+                    else selectedPurposes.remove(purposeId);
                 })
                 .setNeutralButton(R.string.privacy_policy, null)
                 .setCancelable(false)
                 .create();
 
-        // this is needed to avoid the dialog from closing on clicking the policy button
         alertDialog.setOnShowListener(dialogInterface -> {
             Button neutralButton = alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
             neutralButton.setOnClickListener(view -> {
@@ -343,6 +401,8 @@ public class ConsentManager {
         alertDialog.show();
     }
 
+    // ---- Builder ----
+
     public static class Builder {
         Context context;
         boolean showConsent = true;
@@ -350,13 +410,13 @@ public class ConsentManager {
         String[] excludedLibraries = {};
         Library[] customLibraries = {};
 
-        // Standards support options
         boolean enableTcf = false;
         int tcfCmpSdkId = 0;
         int tcfCmpSdkVersion = 1;
-        String publisherCountryCode = "AA"; // "AA" = unknown per TCF spec
+        String publisherCountryCode = "AA";
         boolean enableUsPrivacy = false;
         boolean enableGpc = false;
+        boolean enableConsentMode = false;
         boolean gdprApplies = false;
         boolean ccpaApplies = false;
 
@@ -384,13 +444,6 @@ public class ConsentManager {
             return this;
         }
 
-        /**
-         * Enable IAB TCF v2.2 support. Writes standard IABTCF_ keys to
-         * SharedPreferences that most ad SDKs read natively.
-         *
-         * @param cmpSdkId   your registered CMP SDK ID (0 = unregistered)
-         * @param sdkVersion your CMP SDK version
-         */
         public Builder enableTcf(int cmpSdkId, int sdkVersion) {
             this.enableTcf = true;
             this.tcfCmpSdkId = cmpSdkId;
@@ -398,60 +451,40 @@ public class ConsentManager {
             return this;
         }
 
-        /**
-         * Enable IAB TCF v2.2 with default values (unregistered CMP).
-         */
         public Builder enableTcf() {
             return enableTcf(0, 1);
         }
 
-        /**
-         * Set the publisher's country code for TCF (ISO 3166-1 alpha-2).
-         */
         public Builder setPublisherCountryCode(String countryCode) {
             this.publisherCountryCode = countryCode;
             return this;
         }
 
-        /**
-         * Enable IAB US Privacy String (CCPA) support.
-         * Writes IABUSPrivacy_String to SharedPreferences.
-         */
         public Builder enableUsPrivacy() {
             this.enableUsPrivacy = true;
             return this;
         }
 
-        /**
-         * Enable Global Privacy Control (GPC).
-         *
-         * GPC is a web standard. When enabled:
-         * - GpcWebViewClient injects Sec-GPC:1 header and
-         *   navigator.globalPrivacyControl into WebViews
-         * - GpcInterceptor.applyTo() adds the header to the app's own HTTP requests
-         *
-         * For third-party SDK consent, use enableTcf() and enableUsPrivacy()
-         * instead — SDKs read those signals from SharedPreferences before making
-         * any network requests, which is more effective than HTTP header injection.
-         */
         public Builder enableGpc() {
             this.enableGpc = true;
             return this;
         }
 
         /**
-         * Set whether GDPR applies to users of this app.
-         * Affects TCF signal output.
+         * Enable Google Consent Mode v2. Sets ad_storage, analytics_storage,
+         * ad_user_data, and ad_personalization signals that Google SDKs read.
+         * Required for EU ad serving since March 2024.
          */
+        public Builder enableGoogleConsentMode() {
+            this.enableConsentMode = true;
+            return this;
+        }
+
         public Builder setGdprApplies(boolean gdprApplies) {
             this.gdprApplies = gdprApplies;
             return this;
         }
 
-        /**
-         * Set whether CCPA applies to users of this app.
-         * Affects US Privacy String output.
-         */
         public Builder setCcpaApplies(boolean ccpaApplies) {
             this.ccpaApplies = ccpaApplies;
             return this;
@@ -464,7 +497,7 @@ public class ConsentManager {
             return ConsentManager.getInstance(
                     context, showConsent, privacyPolicy, excludedLibraries, customLibraries,
                     enableTcf, tcfCmpSdkId, tcfCmpSdkVersion, publisherCountryCode,
-                    enableUsPrivacy, enableGpc, gdprApplies, ccpaApplies);
+                    enableUsPrivacy, enableGpc, enableConsentMode, gdprApplies, ccpaApplies);
         }
     }
 }

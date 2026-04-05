@@ -42,13 +42,14 @@ public class MainActivity extends AppCompatActivity {
                 new ConsentManager.Builder(this)
                         .setShowConsent(true)
                         .setPrivacyPolicy(Uri.parse("http://www.example.org/privacy"))
-                        // Enable industry standard consent signals
-                        .enableTcf()                    // IAB TCF v2.2
+                        // Industry standard consent signals
+                        .enableTcf()                    // IAB TCF v2.2 (with TC String)
                         .setGdprApplies(true)           // GDPR applies to EU users
                         .setPublisherCountryCode("DE")  // Publisher country
                         .enableUsPrivacy()              // IAB US Privacy (CCPA)
                         .setCcpaApplies(true)           // CCPA applies to CA users
                         .enableGpc()                    // Global Privacy Control
+                        .enableGoogleConsentMode()      // Google Consent Mode v2
                         //.setExcludedLibraries(new String[]{"firebase_analytics"})
                         //.setCustomLibraries(new Library[]{new CustomLibrary()})
                         .build();
