@@ -149,4 +149,45 @@ public class TcfConsentManagerTest {
         SharedPreferences defaultPrefs = PreferenceManager.getDefaultSharedPreferences(context);
         assertTrue(defaultPrefs.contains("IABTCF_PurposeConsents"));
     }
+
+    @Test
+    public void writeConsentSignals_writesTcString() {
+        tcf.writeConsentSignals(true, true);
+
+        String tcString = prefs.getString("IABTCF_TCString", null);
+        assertNotNull("TC String should be written", tcString);
+        assertFalse("TC String should not be empty", tcString.isEmpty());
+    }
+
+    @Test
+    public void writeConsentSignals_tcStringDiffersForConsentAndDeny() {
+        tcf.writeConsentSignals(true, true);
+        String consentTc = prefs.getString("IABTCF_TCString", null);
+
+        tcf.writeConsentSignals(true, false);
+        String denyTc = prefs.getString("IABTCF_TCString", null);
+
+        assertNotEquals("TC String should differ for consent vs deny", consentTc, denyTc);
+    }
+
+    @Test
+    public void writeConsentSignals_perPurpose_writesTcString() {
+        boolean[] purposes = new boolean[TcfConsentManager.PURPOSE_COUNT];
+        purposes[0] = true;
+        boolean[] specialFeatures = {false, false};
+
+        tcf.writeConsentSignals(true, purposes, specialFeatures);
+
+        String tcString = prefs.getString("IABTCF_TCString", null);
+        assertNotNull("TC String should be written for per-purpose consent", tcString);
+    }
+
+    @Test
+    public void clearConsentSignals_removesTcString() {
+        tcf.writeConsentSignals(true, true);
+        assertNotNull(prefs.getString("IABTCF_TCString", null));
+
+        tcf.clearConsentSignals();
+        assertNull(prefs.getString("IABTCF_TCString", null));
+    }
 }

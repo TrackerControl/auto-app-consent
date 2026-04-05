@@ -58,15 +58,22 @@ public class TcfConsentManager {
     private final int cmpSdkId;
     private final int cmpSdkVersion;
     private final String publisherCountryCode;
+    private final String consentLanguage;
 
     private final Context context;
 
     public TcfConsentManager(Context context, int cmpSdkId, int cmpSdkVersion,
                              String publisherCountryCode) {
+        this(context, cmpSdkId, cmpSdkVersion, publisherCountryCode, "EN");
+    }
+
+    public TcfConsentManager(Context context, int cmpSdkId, int cmpSdkVersion,
+                             String publisherCountryCode, String consentLanguage) {
         this.context = context;
         this.cmpSdkId = cmpSdkId;
         this.cmpSdkVersion = cmpSdkVersion;
         this.publisherCountryCode = publisherCountryCode;
+        this.consentLanguage = consentLanguage;
     }
 
     /**
@@ -120,6 +127,11 @@ public class TcfConsentManager {
         editor.putString(IABTCF_PUBLISHER_CUSTOM_PURPOSES_CONSENTS, "");
         editor.putString(IABTCF_PUBLISHER_CUSTOM_PURPOSES_LEGITIMATE_INTERESTS, "");
 
+        // TC String — the encoded consent record that many SDKs check first
+        String tcString = TcStringEncoder.encode(
+                cmpSdkId, cmpSdkVersion, consentLanguage, publisherCountryCode, consent);
+        editor.putString(IABTCF_TC_STRING, tcString);
+
         editor.apply();
     }
 
@@ -162,6 +174,17 @@ public class TcfConsentManager {
         editor.putString(IABTCF_PUBLISHER_LEGITIMATE_INTERESTS, buildBinaryString(purposeConsents));
         editor.putString(IABTCF_PUBLISHER_CUSTOM_PURPOSES_CONSENTS, "");
         editor.putString(IABTCF_PUBLISHER_CUSTOM_PURPOSES_LEGITIMATE_INTERESTS, "");
+
+        // TC String — pad arrays to 24 and 12 as required by the spec
+        boolean[] purposes24 = new boolean[24];
+        boolean[] specialFeatures12 = new boolean[12];
+        System.arraycopy(purposeConsents, 0, purposes24, 0, purposeConsents.length);
+        System.arraycopy(specialFeatures, 0, specialFeatures12, 0, specialFeatures.length);
+
+        String tcString = TcStringEncoder.encode(
+                cmpSdkId, cmpSdkVersion, consentLanguage, publisherCountryCode,
+                purposes24, purposes24, specialFeatures12, 0);
+        editor.putString(IABTCF_TC_STRING, tcString);
 
         editor.apply();
     }
