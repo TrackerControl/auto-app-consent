@@ -1,6 +1,6 @@
 # Auto App Consent for App Developers
 
-*Developed by Konrad Kollnig, Department of Computer Science, University of Oxford*
+*Developed by Konrad Kollnig*
 
 This library helps Android app developers implement consent and privacy compliance. It addresses the finding from [our research at Oxford](https://www.usenix.org/conference/soups2021/presentation/kollnig) that less than 4% of Android apps implement any form of consent.
 
