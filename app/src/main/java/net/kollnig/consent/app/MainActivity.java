@@ -42,6 +42,14 @@ public class MainActivity extends AppCompatActivity {
                 new ConsentManager.Builder(this)
                         .setShowConsent(true)
                         .setPrivacyPolicy(Uri.parse("http://www.example.org/privacy"))
+                        // Industry standard consent signals
+                        .enableTcf()                    // IAB TCF v2.2 (with TC String)
+                        .setGdprApplies(true)           // GDPR applies to EU users
+                        .setPublisherCountryCode("DE")  // Publisher country
+                        .enableUsPrivacy()              // IAB US Privacy (CCPA)
+                        .setCcpaApplies(true)           // CCPA applies to CA users
+                        .enableGpc()                    // Global Privacy Control
+                        .enableGoogleConsentMode()      // Google Consent Mode v2
                         //.setExcludedLibraries(new String[]{"firebase_analytics"})
                         //.setCustomLibraries(new Library[]{new CustomLibrary()})
                         .build();
@@ -51,6 +59,11 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d(TAG, "Detected and managed libraries: "
                 + String.join(", ", consentManager.getManagedLibraries()));
+
+        // Log which standards are active
+        Log.d(TAG, "TCF enabled: " + (consentManager.getTcfManager() != null));
+        Log.d(TAG, "US Privacy enabled: " + (consentManager.getUsPrivacyManager() != null));
+        Log.d(TAG, "GPC enabled: " + consentManager.isGpcEnabled());
 
         // Initialise Firebase
         FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);

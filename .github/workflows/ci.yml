@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  plugin-tests:
+    name: Plugin Unit Tests (bytecode transforms)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: plugin
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-plugin-${{ hashFiles('plugin/**') }}
+          restore-keys: ${{ runner.os }}-gradle-plugin-
+
+      - name: Run plugin tests
+        run: ./gradlew test --no-daemon
+
+      - name: Verify all SDK signatures have tests
+        run: |
+          RULE_COUNT=$(grep -c 'addRule(' src/main/java/net/kollnig/consent/plugin/ConsentTransformRules.java)
+          TEST_COUNT=$(grep -c 'realSignature_' src/test/java/net/kollnig/consent/plugin/ConsentMethodVisitorTest.java)
+          echo "Transform rules: $RULE_COUNT, Signature tests: $TEST_COUNT"
+          if [ "$TEST_COUNT" -lt "$RULE_COUNT" ]; then
+            echo "::warning::Not all SDK rules have signature verification tests ($TEST_COUNT < $RULE_COUNT)"
+          fi
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-test-results
+          path: plugin/build/reports/tests/
+
+  library-tests:
+    name: Library Unit Tests (TCF, US Privacy, GPC)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-library-${{ hashFiles('library/**', 'build.gradle', 'settings.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle-library-
+
+      - name: Run library unit tests
+        run: ./gradlew :library:testDebugUnitTest --no-daemon
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: library-test-results
+          path: library/build/reports/tests/

@@ -1,0 +1,33 @@
+plugins {
+    id 'java-gradle-plugin'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+dependencies {
+    // Android Gradle Plugin API — needed for ConsentPlugin and ConsentClassVisitorFactory
+    implementation 'com.android.tools.build:gradle-api:7.2.1'
+
+    // Kotlin stdlib — needed because AGP's API uses Kotlin function types
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.7.10'
+
+    // ASM bytecode manipulation
+    implementation 'org.ow2.asm:asm:9.7'
+    implementation 'org.ow2.asm:asm-commons:9.7'
+
+    // Testing
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.ow2.asm:asm-util:9.7'
+}
+
+gradlePlugin {
+    plugins {
+        consentPlugin {
+            id = 'net.kollnig.consent.plugin'
+            implementationClass = 'net.kollnig.consent.plugin.ConsentPlugin'
+        }
+    }
+}
